@@ -2,7 +2,6 @@
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
-using Template.Infrastructure.Models;
 
 namespace Template.Service.IServices
 {

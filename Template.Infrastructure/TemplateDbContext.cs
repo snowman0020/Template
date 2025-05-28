@@ -14,10 +14,10 @@ namespace Template.Infrastructure
         // Registered DB Model in TemplateDbContext file
         public DbSet<Users> Users { get; set; }
 
-       /*
-         OnModelCreating mainly used to configured our EF model
-         And insert master data if required
-        */
+        /*
+          OnModelCreating mainly used to configured our EF model
+          And insert master data if required
+         */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAddOrUpdate();

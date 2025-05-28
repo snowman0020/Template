@@ -1,7 +1,5 @@
-﻿
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
-///
 namespace Template.Domain.Paging
 {
     public class PageList<T> : List<T>

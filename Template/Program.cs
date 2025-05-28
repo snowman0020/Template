@@ -1,6 +1,4 @@
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 using Template.Infrastructure;
 using Template.Service.IServices;
 using Template.Service.Services;
@@ -14,7 +12,8 @@ builder.Logging.AddConsole();
 
 builder.Services.AddDbContext<TemplateDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration["DbConnectionString"], x => {
+    options.UseSqlServer(builder.Configuration["DbConnectionString"], x =>
+    {
         x.MigrationsAssembly("Template.Infrastructure");
     });
 });

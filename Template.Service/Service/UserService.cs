@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using SendGrid.Helpers.Errors.Model;
 using Template.Domain.DTO;
