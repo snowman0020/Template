@@ -8,7 +8,6 @@
 
     public enum UserEnumSortBy
     {
-        Username,
         FullName,
         Phone,
         Email

@@ -4,14 +4,22 @@ using Template.Infrastructure;
 
 string fileName = $"appsettings.json";
 
-var configuration = new ConfigurationBuilder()
-  .AddJsonFile(fileName)
-  .Build();
+var configuration = new ConfigurationBuilder().AddJsonFile(fileName).Build();
+
 var connectionString = configuration["DbConnectionString"];
 
-var builder = new DbContextOptionsBuilder<DatabaseContext>();
+var builder = new DbContextOptionsBuilder<TemplateDbContext>();
 builder.UseSqlServer(connectionString);
-DatabaseContext db = new DatabaseContext(builder.Options);
-Console.WriteLine("Applying [Database.Models] database migration.");
-db.Database.Migrate();
-Console.WriteLine("Finished [Database.Models] database migration.");
+
+var db = new TemplateDbContext(builder.Options);
+
+Console.WriteLine("Database migrating...");
+try
+{
+    db.Database.Migrate();
+    Console.WriteLine("Finished migration...");
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Error migration message: " + ex.Message.ToString());
+}

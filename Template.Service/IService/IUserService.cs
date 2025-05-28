@@ -2,15 +2,16 @@
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
+using Template.Infrastructure.Models;
 
 namespace Template.Service.IServices
 {
     public interface IUserService
     {
-        Task<UserPaging> GetUserListAsync(UserFilter userFilter, PageParam pageParam, UserSortBy? userSortBy);
-        Task<UserDTO> GetUserByIdAsync(string ID);
-        Task<UserDTO> CreateUserAsync(UserDTO input);
-        Task<UserDTO> UpdateUserAsync(string ID, UserDTO input);
-        Task<bool> DeleteUserAsync(string ID);
+        Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy);
+        Task<UserDTO> GetUserByIdAsync(string Id);
+        Task<UserDTO> AddUserAsync(UserDTO input);
+        Task<UserDTO> UpdateUserAsync(string Id, UserDTO input);
+        Task DeleteUserAsync(string Id);
     }
 }

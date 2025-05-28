@@ -1,63 +1,112 @@
-﻿using Template.Infrastructure.Models;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using Template.Infrastructure.Models;
 
 namespace Template.Domain.DTO
 {
+    public class UserRequest : UserDTO
+    {
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new string? Id { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new int? OrderNumber { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new bool? IsDeleted { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new DateTime? CreatedDate { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new string? CreatedBy { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new DateTime? UpdatedDate { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new string? UpdatedBy { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new DateTime? DeletedDate { get; set; }
+
+        [Obsolete("Inaccessible hidden inherited variable", true)]
+        public new string? DeletedBy { get; set; }
+    }
+
     public class UserDTO
     {
-        public string? ID { get; set; }
-        public string? Username { get; set; }
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string? Id { get; set; }
+
+        [Required(ErrorMessage = "Firstname not empty.")]
         public string? FirstName { get; set; }
+
+        [Required(ErrorMessage = "Lastname is required.")]
         public string? LastName { get; set; }
+
+        [Required(ErrorMessage = "Phone is required.")]
+        [Phone(ErrorMessage = "Invalid Phone.")]
         public string? Phone { get; set; }
+
+        [Required(ErrorMessage = "Email is required.")]
+        [EmailAddress(ErrorMessage = "Invalid Email.")]
         public string? Email { get; set; }
-        public bool? IsDeleted { get; set; }
-        public DateTime? CreatedDate { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public int OrderNumber { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public bool IsDeleted { get; set; }
+        public DateTime CreatedDate { get; set; }
         public string? CreatedBy { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime? UpdatedDate { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public string? UpdatedBy { get; set; }
 
-        public static UserDTO? CreateFromModel(Users model)
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public DateTime? DeletedDate { get; set; }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        public string? DeletedBy { get; set; }
+
+        public static UserDTO CreateFromModel(Users model)
         {
+            var result = new UserDTO();
+
             if (model != null)
             {
-                var result = new UserDTO()
-                {
-                    ID = model.ID,
-                    Username = model.Username,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    Phone = model.Phone,
-                    Email = model.Email,
-                    IsDeleted = model.IsDeleted,
-                    CreatedDate = model.CreatedDate,
-                    CreatedBy = model.CreatedBy,
-                    UpdatedDate = model.UpdatedDate,
-                    UpdatedBy = model.UpdatedBy
-                };
+                result.Id = model.ID;
+                result.FirstName = model.FirstName;
+                result.LastName = model.LastName;
+                result.Phone = model.Phone;
+                result.Email = model.Email;
+                result.OrderNumber = model.OrderNumber;
+                result.IsDeleted = model.IsDeleted;
+                result.CreatedDate = model.CreatedDate;
+                result.CreatedBy = model.CreatedBy;
+                result.UpdatedDate = model.UpdatedDate;
+                result.UpdatedBy = model.UpdatedBy;
+                result.DeletedDate = model.DeletedDate;
+                result.DeletedBy = model.DeletedBy;
+            }
 
-                return result;
-            }
-            else
-            {
-                return null;
-            }
+            return result;
         }
 
-
-        public async Task CreateSaveToModelAsync(Users model)
+        public void AddToModel(Users model)
         {
             model.ID = Guid.NewGuid().ToString();
-            model.Username = Username;
             model.FirstName = FirstName;
             model.LastName = LastName;
             model.Phone = Phone;
             model.Email = Email;
-            model.IsDeleted = false;
-            model.CreatedDate = DateTime.Now;
-            model.CreatedBy = "System";
         }
 
-        public async Task UpdateSaveToModelAsync(Users model)
+        public void UpdateToModel(Users model)
         {
             model.FirstName = FirstName;
             model.LastName = LastName;
@@ -67,11 +116,11 @@ namespace Template.Domain.DTO
             model.UpdatedBy = "System";
         }
 
-        public async Task DeleteSaveToModelAsync(Users model)
+        public void DeleteToModel(Users model)
         {
             model.IsDeleted = true;
-            model.UpdatedDate = DateTime.Now;
-            model.UpdatedBy = "System";
+            model.DeletedDate = DateTime.Now;
+            model.DeletedBy = "System";
         }
     }
 }

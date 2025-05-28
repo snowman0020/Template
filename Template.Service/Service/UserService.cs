@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 using SendGrid.Helpers.Errors.Model;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
@@ -13,271 +14,255 @@ namespace Template.Service.Services
 {
     public class UserService : IUserService
     {
-        private readonly DatabaseContext DB;
-        private readonly IConfiguration Configuration;
+        private readonly TemplateDbContext _db;
+        private readonly ILogger<UserService> _logger;
 
-        public UserService(DatabaseContext db, IConfiguration configuration)
+        public UserService(TemplateDbContext db, ILogger<UserService> logger)
         {
-            DB = db;
-            Configuration = configuration;
+            _db = db;
+            _logger = logger;
         }
 
-        public async Task<UserPaging> GetUserListAsync(UserFilter userFilter, PageParam pageParam, UserSortBy? userSortBy)
+        public async Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy)
         {
-            var result = new UserPaging();
-
             try
             {
-                IQueryable<Users> query = DB.Users.Where(o => o.IsDeleted == false);
+                var query = _db.Users.AsNoTracking();
 
-                if (!string.IsNullOrEmpty(userFilter.Username))
+                #region Filter
+                if (filter != null)
                 {
-                    query = query.Where(x => x.Username.ToUpper().Contains(userFilter.Username.ToUpper()));
-                }
-                if (!string.IsNullOrEmpty(userFilter.FullName))
-                {
-                    query = query.Where(x => x.FirstName.ToUpper().Contains(userFilter.FullName.ToUpper()) || 
-                                             x.LastName.ToUpper().Contains(userFilter.FullName.ToUpper()));
-                }
-                if (!string.IsNullOrEmpty(userFilter.Phone))
-                {
-                    query = query.Where(x => x.Phone == userFilter.Phone);
-                }
-                if (!string.IsNullOrEmpty(userFilter.Email))
-                {
-                    query = query.Where(x => x.Email.ToUpper().Contains(userFilter.Email.ToUpper()));
-                }
-
-                if (userSortBy.UserEnumSortBy != null)
-                {
-                    switch (userSortBy.UserEnumSortBy.Value)
+                    if (!string.IsNullOrEmpty(filter.FullName))
                     {
-                        case UserEnumSortBy.Username:
-                            if (userSortBy.Ascending) query = query.OrderBy(o => o.Username);
-                            else query = query.OrderByDescending(o => o.Username);
-                            break;
+                        string fullName = filter.FullName;
+                        query = query.Where(f => f.FirstName == fullName || f.LastName == fullName);
+                    }
+                    if (!string.IsNullOrEmpty(filter.Phone))
+                    {
+                        string phone = filter.Phone;
+                        query = query.Where(f => f.Phone == phone);
+                    }
+                    if (!string.IsNullOrEmpty(filter.Email))
+                    {
+                        string email = filter.Email;
+                        query = query.Where(f => f.Email == email);
+                    }
+                }
+                #endregion
+
+                #region SortBy
+                if (sortBy != null && sortBy.UserEnumSortBy != null)
+                {
+                    switch (sortBy.UserEnumSortBy.Value)
+                    {
                         case UserEnumSortBy.FullName:
-                            if (userSortBy.Ascending) query = query.OrderBy(o => o.FirstName).OrderBy(o => o.LastName);
-                            else query = query.OrderByDescending(o => o.FirstName).OrderByDescending(o => o.LastName);
+                            if (sortBy.Ascending)
+                            {
+                                query = query.OrderBy(o => o.FirstName).OrderBy(o => o.LastName);
+                            }
+                            else
+                            {
+                                query = query.OrderByDescending(o => o.FirstName).OrderByDescending(o => o.LastName);
+                            }
                             break;
                         case UserEnumSortBy.Phone:
-                            if (userSortBy.Ascending) query = query.OrderBy(o => o.Phone);
-                            else query = query.OrderByDescending(o => o.Phone);
+                            if (sortBy.Ascending)
+                            {
+                                query = query.OrderBy(o => o.Phone);
+                            }
+                            else
+                            {
+                                query = query.OrderByDescending(o => o.Phone);
+                            }
                             break;
                         case UserEnumSortBy.Email:
-                            if (userSortBy.Ascending) query = query.OrderBy(o => o.Email);
-                            else query = query.OrderByDescending(o => o.Email);
-                            break;
-                        default:
-                            query = query.OrderBy(o => o.FirstName);
+                            if (sortBy.Ascending)
+                            {
+                                query = query.OrderBy(o => o.Email);
+                            }
+                            else
+                            {
+                                query = query.OrderByDescending(o => o.Email);
+                            }
                             break;
                     }
                 }
                 else
                 {
-                    query = query.OrderBy(o => o.FirstName);
+                    query = query.OrderBy(o => o.OrderNumber);
                 }
+                #endregion
 
-                var pageOutput = PagingData.Paging(pageParam, ref query);
+                #region Paging
+                var queryResult = await PageList<Users>.ToModelList(query, pageParam);
 
-                var queryResults = await query.ToListAsync();
+                var userListDTO = queryResult.Select(qr => UserDTO.CreateFromModel(qr)).ToList();
 
-                var data = queryResults.Select(o => new UserDTO
-                {
-                    ID = o.ID,
-                    Username = o.Username,
-                    FirstName = o.FirstName,
-                    LastName = o.LastName,
-                    Phone = o.Phone,
-                    Email = o.Email,
-                    IsDeleted = o.IsDeleted,
-                    CreatedDate = o.CreatedDate,
-                    CreatedBy = o.CreatedBy,
-                    UpdatedDate = o.UpdatedDate,
-                    UpdatedBy = o.UpdatedBy
-                }).ToList();
+                var result = PageList<UserDTO>.ToPagedList(userListDTO, pageParam);
+                #endregion
 
-                result = new UserPaging()
-                {
-                    UserList = data,
-                    PageOutput = pageOutput
-                };
+                return result;
             }
             catch (Exception ex)
             {
-                throw new BadRequestException(string.Format("ไม่สามารถเรียกข้อมูลได้เกิดปัญหา ข้อความ: {0}", ex.Message.ToString()));
+                string message = $"Can not get user list => message: {ex.Message.ToString()}";
+
+                _logger.LogError(message);
+                throw new BadRequestException(message);
             }
-
-            return result;
         }
-
-        public async Task<UserDTO> GetUserByIdAsync(string ID)
+        public async Task<UserDTO> GetUserByIdAsync(string Id)
         {
             var result = new UserDTO();
 
             try
             {
-                var model = await DB.Users.Where(o => o.ID == ID && o.IsDeleted == false).FirstOrDefaultAsync();
+                var model = await _db.Users.Where(m => m.ID == Id).AsNoTracking().FirstOrDefaultAsync();
 
                 if (model == null)
                 {
-                    throw new BadRequestException("ไม่พบข้อมูล.");
+                    throw new BadRequestException("Data not found.");
+                }
+                else
+                {
+                    if (model.IsDeleted)
+                    {
+                        throw new BadRequestException("Data has deleted.");
+                    }
                 }
 
                 result = UserDTO.CreateFromModel(model);
             }
             catch (Exception ex)
             {
-                throw new BadRequestException(string.Format("ไม่สามารถค้นหาข้อมูลได้เกิดปัญหา ข้อความ: {0}", ex.Message.ToString()));
+                string message = $"Can not search by id => message: {ex.Message.ToString()}";
+
+                _logger.LogError(message);
+                throw new BadRequestException(message);
             }
 
             return result;
         }
-        public async Task<UserDTO> CreateUserAsync(UserDTO input)
+        public async Task<UserDTO> AddUserAsync(UserDTO input)
         {
             var result = new UserDTO();
 
-            if (string.IsNullOrEmpty(input.Username))
-            {
-                throw new BadRequestException("Username ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.FirstName))
-            {
-                throw new BadRequestException("ชื่อ ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.LastName))
-            {
-                throw new BadRequestException("นามสกุล ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.Phone))
-            {
-                throw new BadRequestException("เบอร์ติดต่อ ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.Email))
-            {
-                throw new BadRequestException("Email ห้ามว่าง.");
-            }
-
-            var model = await DB.Users.Where(o => o.FirstName == input.FirstName && o.LastName == input.LastName).FirstOrDefaultAsync();
+            var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
             if (model != null)
             {
-                throw new BadRequestException("ชื่อ-นามสกุล ซ้ำ.");
+                throw new BadRequestException("Firstname and Lastname duplicate.");
             }
 
-            using (var transaction = DB.Database.BeginTransaction())
+            using (var transaction = _db.Database.BeginTransaction())
             {
                 try
                 {
                     var user = new Users();
 
-                    await input.CreateSaveToModelAsync(user);
+                    input.AddToModel(user);
 
-                    await DB.Users.AddAsync(user);
-                    await DB.SaveChangesAsync();
+                    await _db.Users.AddAsync(user);
+                    await _db.SaveChangesAsync();
 
-                    result = await GetUserByIdAsync(user.ID);
+                    string userId = user.ID ?? "";
+
+                    result = await GetUserByIdAsync(userId);
 
                     transaction.Commit();
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new BadRequestException(string.Format("ไม่สามารถสร้างได้เกิดปัญหา ข้อความ: {0}", ex.Message.ToString()));
+
+                    string message = $"Can not add data => message: {ex.Message.ToString()}";
+
+                    _logger.LogError(message);
+                    throw new BadRequestException(message);
                 }
             }
 
             return result;
         }
-        public async Task<UserDTO> UpdateUserAsync(string ID, UserDTO input)
+        public async Task<UserDTO> UpdateUserAsync(string Id, UserDTO input)
         {
             var result = new UserDTO();
 
-            if (string.IsNullOrEmpty(input.FirstName))
+            if (string.IsNullOrEmpty(Id))
             {
-                throw new BadRequestException("ชื่อ ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.LastName))
-            {
-                throw new BadRequestException("นามสกุล ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.Phone))
-            {
-                throw new BadRequestException("เบอร์ติดต่อ ห้ามว่าง.");
-            }
-            if (string.IsNullOrEmpty(input.Email))
-            {
-                throw new BadRequestException("Email ห้ามว่าง.");
+                throw new BadRequestException("Id is required.");
             }
 
-            var model = await DB.Users.Where(o => o.FirstName == input.FirstName && o.LastName == input.LastName).FirstOrDefaultAsync();
+            var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
-            if (model != null)
+            if (model != null && model.ID != Id)
             {
-                throw new BadRequestException("ชื่อ-นามสกุล ซ้ำ.");
+                throw new BadRequestException("Firstname and Lastname duplicate.");
             }
 
-            using (var transaction = DB.Database.BeginTransaction())
+            using (var transaction = _db.Database.BeginTransaction())
             {
                 try
                 {
-                    var user = await DB.Users.Where(o => o.ID == ID).FirstOrDefaultAsync();
+                    var user = await _db.Users.Where(m => m.ID == Id).FirstOrDefaultAsync();
 
                     if (user != null)
                     {
-                        await input.UpdateSaveToModelAsync(user);
+                        input.UpdateToModel(user);
 
-                        DB.Users.Update(user);
-                        await DB.SaveChangesAsync();
+                        _db.Users.Update(user);
+                        await _db.SaveChangesAsync();
                     }
 
-                    result = await GetUserByIdAsync(ID);
+                    result = await GetUserByIdAsync(Id);
 
                     transaction.Commit();
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new BadRequestException(string.Format("ไม่สามารถแก้ไขได้เกิดปัญหา ข้อความ: {0}", ex.Message.ToString()));
+
+                    string message = $"Can not update data => message: {ex.Message.ToString()}";
+
+                    _logger.LogError(message);
+                    throw new BadRequestException(message);
                 }
             }
 
             return result;
         }
-        public async Task<bool> DeleteUserAsync(string ID)
+        public async Task DeleteUserAsync(string Id)
         {
-            var result = false;
-
-            var model = await DB.Users.Where(o => o.ID == ID).FirstOrDefaultAsync();
+            var model = await _db.Users.Where(m => m.ID == Id && m.IsDeleted == false).FirstOrDefaultAsync();
 
             if (model == null)
             {
-                throw new BadRequestException("ไม่พบข้อมูล.");
+                throw new BadRequestException("Data not found.");
             }
 
-            using (var transaction = DB.Database.BeginTransaction())
+            using (var transaction = _db.Database.BeginTransaction())
             {
                 try
                 {
                     var input = new UserDTO();
 
-                    await input.DeleteSaveToModelAsync(model);
+                    input.DeleteToModel(model);
 
-                    DB.Users.Update(model);
-                    await DB.SaveChangesAsync();
-
-                    result = true;
+                    _db.Users.Update(model);
+                    await _db.SaveChangesAsync();
 
                     transaction.Commit();
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
-                    throw new BadRequestException(string.Format("ไม่สามารถลบได้เกิดปัญหา ข้อความ: {0}", ex.Message.ToString()));
+
+                    string message = $"Can not delete data => message: {ex.Message.ToString()}";
+
+                    _logger.LogError(message);
+                    throw new BadRequestException(message);
                 }
             }
-
-            return result;
         }
     }
 }

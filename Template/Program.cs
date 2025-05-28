@@ -1,11 +1,18 @@
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Template.Infrastructure;
 using Template.Service.IServices;
 using Template.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<DatabaseContext>(options =>
+builder.Configuration.AddJsonFile("appsettings.json", false, true);
+
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+
+builder.Services.AddDbContext<TemplateDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["DbConnectionString"], x => {
         x.MigrationsAssembly("Template.Infrastructure");

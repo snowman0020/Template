@@ -1,5 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using System.ComponentModel.DataAnnotations;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
@@ -19,40 +20,45 @@ namespace Template.Controllers
             UserService = userService;
         }
 
-        [PagingResponseHeaders]
         [HttpGet]
-        [ProducesResponseType(200, Type = typeof(List<UserDTO>))]
-        public async Task<IActionResult> GetUserListAsync([FromQuery] UserFilter userFilter, [FromQuery] PageParam pageParam, [FromQuery] UserSortBy? userSortBy)
+        [ProducesResponseType(200, Type = typeof(PageList<UserDTO>))]
+        public async Task<IActionResult> GetUserListAsync([FromQuery] UserFilter filter, [FromQuery] PageParam pageParam, [FromQuery] UserSortBy sortBy)
         {
-            var result = await UserService.GetUserListAsync(userFilter, pageParam, userSortBy);
+            var result = await UserService.GetUserListAsync(filter, pageParam, sortBy);
 
-            if (result.PageOutput != null)
+            if (result != null && result.Count > 0)
             {
-                Response.Headers.Add("Access-Control-Expose-Headers", "X-Paging-PageNo, X-Paging-PageSize, X-Paging-PageCount, X-Paging-TotalRecordCount");
-                Response.Headers.Add("X-Paging-PageNo", result.PageOutput.Page.ToString());
-                Response.Headers.Add("X-Paging-PageSize", result.PageOutput.PageSize.ToString());
-                Response.Headers.Add("X-Paging-PageCount", result.PageOutput.PageCount.ToString());
-                Response.Headers.Add("X-Paging-TotalRecordCount", result.PageOutput.RecordCount.ToString());
+                var pageData = new
+                {
+                    result.TotalCount,
+                    result.PageSize,
+                    result.CurrentPage,
+                    result.TotalPages,
+                    result.HasNext,
+                    result.HasPrevious
+                };
+
+                Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pageData));
             }
 
-            return Ok(result.UserList);
+            return Ok(result);
         }
 
-        [HttpGet("{ID}")]
+        [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
-        public async Task<IActionResult> GetUserByIdAsync([Required][FromRoute] string ID)
+        public async Task<IActionResult> GetUserByIdAsync([Required][FromRoute] string id)
         {
-            var result = await UserService.GetUserByIdAsync(ID);
+            var result = await UserService.GetUserByIdAsync(id);
             return Ok(result);
         }
 
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
-        public async Task<IActionResult> CreateUserAsync([Required][FromBody] UserDTO input)
+        public async Task<IActionResult> AddUserAsync([Required][FromBody] UserRequest input)
         {
             try
             {
-                var result = await UserService.CreateUserAsync(input);
+                var result = await UserService.AddUserAsync(input);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -61,13 +67,13 @@ namespace Template.Controllers
             }
         }
 
-        [HttpPut("{ID}")]
+        [HttpPut("{id}")]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
-        public async Task<IActionResult> UpdateUserAsync([Required][FromRoute] string ID, [Required][FromBody] UserDTO input)
+        public async Task<IActionResult> UpdateUserAsync([Required][FromRoute] string id, [Required][FromBody] UserRequest input)
         {
             try
             {
-                var result = await UserService.UpdateUserAsync(ID, input);
+                var result = await UserService.UpdateUserAsync(id, input);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -76,14 +82,14 @@ namespace Template.Controllers
             }
         }
 
-        [HttpDelete("{ID}")]
-        [ProducesResponseType(200, Type = typeof(bool))]
-        public async Task<IActionResult> DeleteUserAsync([Required][FromRoute] string ID)
+        [HttpDelete("{id}")]
+        [ProducesResponseType(200)]
+        public async Task<IActionResult> DeleteUserAsync([Required][FromRoute] string id)
         {
             try
             {
-                var result = await UserService.DeleteUserAsync(ID);
-                return Ok(result);
+                await UserService.DeleteUserAsync(id);
+                return Ok();
             }
             catch (Exception ex)
             {
