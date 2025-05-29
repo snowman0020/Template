@@ -15,6 +15,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Template.Domain\Template.Domain.csproj" />
+    <ProjectReference Include="..\Template.Helper\Template.Helper.csproj" />
     <ProjectReference Include="..\Template.Service\Template.Service.csproj" />
   </ItemGroup>
 

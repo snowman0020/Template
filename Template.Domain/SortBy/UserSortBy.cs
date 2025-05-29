@@ -2,7 +2,7 @@
 {
     public class UserSortBy
     {
-        public UserEnumSortBy? UserEnumSortBy { get; set; }
+        public UserEnumSortBy UserEnumSortBy { get; set; }
         public bool Ascending { get; set; }
     }
 

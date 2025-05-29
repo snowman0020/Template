@@ -1,9 +1,12 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Template.Helper;
 using Template.Infrastructure;
 using Template.Service.IServices;
 using Template.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+
 
 builder.Configuration.AddJsonFile("appsettings.json", false, true);
 
@@ -17,6 +20,8 @@ builder.Services.AddDbContext<TemplateDbContext>(options =>
         x.MigrationsAssembly("Template.Infrastructure");
     });
 });
+
+builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 

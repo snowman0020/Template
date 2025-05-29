@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using SendGrid.Helpers.Errors.Model;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
+using Template.Helper;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
 using Template.Service.IServices;
@@ -16,7 +17,7 @@ namespace Template.Service.Services
         private readonly TemplateDbContext _db;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(TemplateDbContext db, ILogger<UserService> logger)
+        public UserService(TemplateDbContext db, ILogger<UserService> logger, IErrorExceptionHandler customExceptionHandler)
         {
             _db = db;
             _logger = logger;
@@ -50,9 +51,9 @@ namespace Template.Service.Services
                 #endregion
 
                 #region SortBy
-                if (sortBy != null && sortBy.UserEnumSortBy != null)
+                if (sortBy != null)
                 {
-                    switch (sortBy.UserEnumSortBy.Value)
+                    switch (sortBy.UserEnumSortBy)
                     {
                         case UserEnumSortBy.FullName:
                             if (sortBy.Ascending)
@@ -104,10 +105,13 @@ namespace Template.Service.Services
             }
             catch (Exception ex)
             {
-                string message = $"Can not get user list => message: {ex.Message.ToString()}";
+                Error.Status = ErrorStatus.BAD_REQUEST ;
+                Error.Title = "Can not get user list.";
+                Error.Message = ex.Message.ToString();
 
-                _logger.LogError(message);
-                throw new BadRequestException(message);
+                //_logger.LogError(message);
+
+                throw;
             }
         }
         public async Task<UserDTO> GetUserByIdAsync(string Id)
@@ -120,24 +124,39 @@ namespace Template.Service.Services
 
                 if (model == null)
                 {
-                    throw new BadRequestException("Data not found.");
+                    Error.Status = ErrorStatus.BAD_REQUEST;
+                    Error.Title = "Data not found.";
+                    Error.Message = "";
+
+                    throw new ErrorException();
                 }
                 else
                 {
                     if (model.IsDeleted)
                     {
-                        throw new BadRequestException("Data has deleted.");
+                        Error.Status = ErrorStatus.BAD_REQUEST;
+                        Error.Title = "Data has deleted.";
+                        Error.Message = "";
+
+                        throw new ErrorException();
                     }
                 }
 
                 result = UserDTO.CreateFromModel(model);
             }
+            catch (ErrorException)
+            {
+                throw;
+            }
             catch (Exception ex)
             {
-                string message = $"Can not search by id => message: {ex.Message.ToString()}";
+                Error.Status = ErrorStatus.BAD_REQUEST;
+                Error.Title = "Can not search by id.";
+                Error.Message = ex.Message.ToString();
 
-                _logger.LogError(message);
-                throw new BadRequestException(message);
+                //_logger.LogError(message);
+
+                throw;
             }
 
             return result;
@@ -150,7 +169,11 @@ namespace Template.Service.Services
 
             if (model != null)
             {
-                throw new BadRequestException("Firstname and Lastname duplicate.");
+                Error.Status = ErrorStatus.BAD_REQUEST;
+                Error.Title = "Firstname and Lastname duplicate.";
+                Error.Message = "";
+
+                throw new ErrorException();
             }
 
             using (var transaction = _db.Database.BeginTransaction())
@@ -170,14 +193,23 @@ namespace Template.Service.Services
 
                     transaction.Commit();
                 }
+                catch (ErrorException)
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
 
-                    string message = $"Can not add data => message: {ex.Message.ToString()}";
+                    Error.Status = ErrorStatus.BAD_REQUEST;
+                    Error.Title = "Can not add data.";
+                    Error.Message = ex.Message.ToString();
 
-                    _logger.LogError(message);
-                    throw new BadRequestException(message);
+                    //_logger.LogError(message);
+
+                    throw new ErrorException();
                 }
             }
 
@@ -189,14 +221,22 @@ namespace Template.Service.Services
 
             if (string.IsNullOrEmpty(Id))
             {
-                throw new BadRequestException("Id is required.");
+                Error.Status = ErrorStatus.BAD_REQUEST;
+                Error.Title = "Id is required.";
+                Error.Message = "";
+
+                throw new ErrorException();
             }
 
             var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
             if (model != null && model.ID != Id)
             {
-                throw new BadRequestException("Firstname and Lastname duplicate.");
+                Error.Status = ErrorStatus.BAD_REQUEST;
+                Error.Title = "Firstname and Lastname duplicate.";
+                Error.Message = "";
+
+                throw new ErrorException();
             }
 
             using (var transaction = _db.Database.BeginTransaction())
@@ -217,14 +257,23 @@ namespace Template.Service.Services
 
                     transaction.Commit();
                 }
+                catch (ErrorException)
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
 
-                    string message = $"Can not update data => message: {ex.Message.ToString()}";
+                    //_logger.LogError(message);
 
-                    _logger.LogError(message);
-                    throw new BadRequestException(message);
+                    Error.Status = ErrorStatus.BAD_REQUEST;
+                    Error.Title = "Can not update data.";
+                    Error.Message = ex.Message.ToString();
+
+                    throw new ErrorException();
                 }
             }
 
@@ -236,7 +285,11 @@ namespace Template.Service.Services
 
             if (model == null)
             {
-                throw new BadRequestException("Data not found.");
+                Error.Status = ErrorStatus.BAD_REQUEST;
+                Error.Title = "Data not found.";
+                Error.Message = "";
+
+                throw new ErrorException();
             }
 
             using (var transaction = _db.Database.BeginTransaction())
@@ -252,14 +305,23 @@ namespace Template.Service.Services
 
                     transaction.Commit();
                 }
+                catch (ErrorException)
+                {
+                    transaction.Rollback();
+
+                    throw;
+                }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
 
-                    string message = $"Can not delete data => message: {ex.Message.ToString()}";
+                    //_logger.LogError(message);
 
-                    _logger.LogError(message);
-                    throw new BadRequestException(message);
+                    Error.Status = ErrorStatus.BAD_REQUEST;
+                    Error.Title = "Can not delete data.";
+                    Error.Message = ex.Message.ToString();
+
+                    throw new ErrorException();
                 }
             }
         }
