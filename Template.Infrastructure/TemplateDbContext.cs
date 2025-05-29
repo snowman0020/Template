@@ -25,6 +25,8 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
+            modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
+
             //// Inserting record in User table
             //var user = new Users()
             //{
