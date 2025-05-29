@@ -1,11 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Net;
-using System.Runtime.Serialization;
-using System.Security.Authentication;
-using Template.Domain.DTO;
+﻿using System.Runtime.Serialization;
 
 namespace Template.Helper
 {

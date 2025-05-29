@@ -1,11 +1,4 @@
-﻿using System;
-using System.ComponentModel;
-using System.ComponentModel.DataAnnotations;
-using System.Net;
-using System.Net.Http;
-using Template.Infrastructure.Models;
-
-namespace Template.Domain.DTO
+﻿namespace Template.Domain.DTO
 {
     public class ErrorResultDTO
     {

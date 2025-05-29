@@ -1,10 +1,6 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using System;
+﻿using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
+using System.Text.Json;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
@@ -47,7 +43,7 @@ namespace Template.Controllers
                         result.HasPrevious
                     };
 
-                    Response.Headers.Add("X-Pagination", JsonConvert.SerializeObject(pageData));
+                    Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pageData));
                 }
 
                 return Ok(result);

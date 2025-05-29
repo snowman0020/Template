@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using System.Globalization;
-using System.Net;
-using System.Security.Authentication;
+﻿using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using Template.Domain.DTO;
 
 namespace Template.Helper
@@ -20,7 +16,7 @@ namespace Template.Helper
         {
             var result = new ErrorResultDTO();
 
-           //_logger.LogError(exception, "An unexpected error occurred");
+            _logger.LogInformation($"call: ErrorException: exception: {JsonSerializer.Serialize(exception)}, errorStatus: {errorStatus}, title: {title}, message: {message}");
 
             int status = 0;
             string type = "";
@@ -58,6 +54,8 @@ namespace Template.Helper
             result.Title = title;
             result.Detail = message;
             //result.Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}";
+
+            _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
 
             return result;
         }

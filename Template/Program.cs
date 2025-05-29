@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Serilog;
 using Template.Helper;
 using Template.Infrastructure;
 using Template.Service.IServices;
@@ -13,10 +13,17 @@ builder.Configuration.AddJsonFile("appsettings.json", false, true);
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
+//Add support to logging with SERILOG
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    //loggerConfiguration.WriteTo.Console();
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
+
 builder.Services.AddDbContext<TemplateDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration["DbConnectionString"], x =>
-    {
+    {   
         x.MigrationsAssembly("Template.Infrastructure");
     });
 });
@@ -38,6 +45,9 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+////Add support to logging request with SERILOG
+//app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 

@@ -1,6 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using System.Text.Json;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
@@ -27,6 +27,8 @@ namespace Template.Service.Services
         {
             try
             {
+                _logger.LogInformation($"call: GetUserListAsync: filter: {JsonSerializer.Serialize(filter)}, pageParam: {JsonSerializer.Serialize(pageParam)}, sortBy: {JsonSerializer.Serialize(sortBy)}");
+
                 var query = _db.Users.AsNoTracking();
 
                 #region Filter
@@ -34,19 +36,24 @@ namespace Template.Service.Services
                 {
                     if (!string.IsNullOrEmpty(filter.FullName))
                     {
+                        _logger.LogInformation("filter: FullName");
                         string fullName = filter.FullName;
                         query = query.Where(f => f.FirstName == fullName || f.LastName == fullName);
                     }
                     if (!string.IsNullOrEmpty(filter.Phone))
                     {
+                        _logger.LogInformation("filter: Phone");
                         string phone = filter.Phone;
                         query = query.Where(f => f.Phone == phone);
                     }
                     if (!string.IsNullOrEmpty(filter.Email))
                     {
+                        _logger.LogInformation("filter: email");
                         string email = filter.Email;
                         query = query.Where(f => f.Email == email);
                     }
+
+                    _logger.LogDebug($"filter: data: {JsonSerializer.Serialize(query.ToList())}");
                 }
                 #endregion
 
@@ -58,38 +65,48 @@ namespace Template.Service.Services
                         case UserEnumSortBy.FullName:
                             if (sortBy.Ascending)
                             {
+                                _logger.LogInformation("sortBy: FullName => Ascending");
                                 query = query.OrderBy(o => o.FirstName).OrderBy(o => o.LastName);
                             }
                             else
                             {
+                                _logger.LogInformation("sortBy: FullName => Descending");
                                 query = query.OrderByDescending(o => o.FirstName).OrderByDescending(o => o.LastName);
                             }
                             break;
                         case UserEnumSortBy.Phone:
                             if (sortBy.Ascending)
                             {
+                                _logger.LogInformation("sortBy: Phone => Ascending");
                                 query = query.OrderBy(o => o.Phone);
                             }
                             else
                             {
+                                _logger.LogInformation("sortBy: Phone => Descending");
                                 query = query.OrderByDescending(o => o.Phone);
                             }
                             break;
                         case UserEnumSortBy.Email:
                             if (sortBy.Ascending)
                             {
+                                _logger.LogInformation("sortBy: Email => Ascending");
                                 query = query.OrderBy(o => o.Email);
                             }
                             else
                             {
+                                _logger.LogInformation("sortBy: Email => Descending");
                                 query = query.OrderByDescending(o => o.Email);
                             }
                             break;
                     }
+
+                    _logger.LogDebug($"sortBy: data: {JsonSerializer.Serialize(query.ToList())}");
                 }
                 else
                 {
+                    _logger.LogInformation("sortBy default: OrderNumber => Ascending");
                     query = query.OrderBy(o => o.OrderNumber);
+                    _logger.LogDebug($"sortBy default: data: {JsonSerializer.Serialize(query.ToList())}");
                 }
                 #endregion
 
@@ -101,15 +118,17 @@ namespace Template.Service.Services
                 var result = PageList<UserDTO>.ToPagedList(userListDTO, pageParam);
                 #endregion
 
+                _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
                 return result;
             }
             catch (Exception ex)
             {
-                Error.Status = ErrorStatus.BAD_REQUEST ;
+                Error.Status = ErrorStatus.BAD_REQUEST;
                 Error.Title = "Can not get user list.";
                 Error.Message = ex.Message.ToString();
 
-                //_logger.LogError(message);
+                _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                 throw;
             }
@@ -120,6 +139,8 @@ namespace Template.Service.Services
 
             try
             {
+                _logger.LogInformation($"call: GetUserByIdAsync: {Id}");
+
                 var model = await _db.Users.Where(m => m.ID == Id).AsNoTracking().FirstOrDefaultAsync();
 
                 if (model == null)
@@ -142,10 +163,16 @@ namespace Template.Service.Services
                     }
                 }
 
+                _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(model)}");
+
                 result = UserDTO.CreateFromModel(model);
+
+                _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(result)}");
             }
             catch (ErrorException)
             {
+                _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
+
                 throw;
             }
             catch (Exception ex)
@@ -154,7 +181,7 @@ namespace Template.Service.Services
                 Error.Title = "Can not search by id.";
                 Error.Message = ex.Message.ToString();
 
-                //_logger.LogError(message);
+                _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                 throw;
             }
@@ -164,6 +191,8 @@ namespace Template.Service.Services
         public async Task<UserDTO> AddUserAsync(UserDTO input)
         {
             var result = new UserDTO();
+
+            _logger.LogInformation($"call: AddUserAsync: {JsonSerializer.Serialize(input)}");
 
             var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
@@ -191,11 +220,15 @@ namespace Template.Service.Services
 
                     result = await GetUserByIdAsync(userId);
 
+                    _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
                     transaction.Commit();
                 }
                 catch (ErrorException)
                 {
                     transaction.Rollback();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                     throw;
                 }
@@ -207,7 +240,7 @@ namespace Template.Service.Services
                     Error.Title = "Can not add data.";
                     Error.Message = ex.Message.ToString();
 
-                    //_logger.LogError(message);
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                     throw new ErrorException();
                 }
@@ -218,6 +251,8 @@ namespace Template.Service.Services
         public async Task<UserDTO> UpdateUserAsync(string Id, UserDTO input)
         {
             var result = new UserDTO();
+
+            _logger.LogInformation($"call: UpdateUserAsync: {Id}, {JsonSerializer.Serialize(input)}");
 
             if (string.IsNullOrEmpty(Id))
             {
@@ -255,11 +290,15 @@ namespace Template.Service.Services
 
                     result = await GetUserByIdAsync(Id);
 
+                    _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
                     transaction.Commit();
                 }
                 catch (ErrorException)
                 {
                     transaction.Rollback();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                     throw;
                 }
@@ -267,11 +306,11 @@ namespace Template.Service.Services
                 {
                     transaction.Rollback();
 
-                    //_logger.LogError(message);
-
                     Error.Status = ErrorStatus.BAD_REQUEST;
                     Error.Title = "Can not update data.";
                     Error.Message = ex.Message.ToString();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                     throw new ErrorException();
                 }
@@ -281,6 +320,8 @@ namespace Template.Service.Services
         }
         public async Task DeleteUserAsync(string Id)
         {
+            _logger.LogInformation($"call: DeleteUserAsync: {Id}");
+
             var model = await _db.Users.Where(m => m.ID == Id && m.IsDeleted == false).FirstOrDefaultAsync();
 
             if (model == null)
@@ -309,17 +350,19 @@ namespace Template.Service.Services
                 {
                     transaction.Rollback();
 
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
+
                     throw;
                 }
                 catch (Exception ex)
                 {
                     transaction.Rollback();
 
-                    //_logger.LogError(message);
-
                     Error.Status = ErrorStatus.BAD_REQUEST;
                     Error.Title = "Can not delete data.";
                     Error.Message = ex.Message.ToString();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
 
                     throw new ErrorException();
                 }

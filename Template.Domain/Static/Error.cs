@@ -1,6 +1,4 @@
-﻿using static Template.Domain.DTO.ErrorResultDTO;
-
-namespace Template.Domain.DTO
+﻿namespace Template.Domain.DTO
 {
     public static class Error
     {
