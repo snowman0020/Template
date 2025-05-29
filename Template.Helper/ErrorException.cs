@@ -19,10 +19,10 @@ namespace Template.Helper
         {
             // Add any type-specific logic for inner exceptions.
         }
-        protected ErrorException(SerializationInfo info,
-           StreamingContext context) : base(info, context)
-        {
-            // Implement type-specific serialization constructor logic.
-        }
+        //protected ErrorException(SerializationInfo info,
+        //   StreamingContext context) : base(info, context)
+        //{
+        //    // Implement type-specific serialization constructor logic.
+        //}
     }
 }

@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json;
 using Template.Domain.DTO;
@@ -23,6 +25,16 @@ namespace Template.Controllers
             _errorExceptionHandler = errorExceptionHandler;
         }
 
+        /// <summary>
+        /// Get user list
+        /// </summary>
+        /// <param name="filter"></param>
+        /// <param name="pageParam"></param>
+        /// <param name="sortBy"></param>
+        /// <returns>User List and paging</returns>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or not found</response>
+        [AllowAnonymous]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(PageList<UserDTO>))]
         public async Task<IActionResult> GetUserListAsync([FromQuery] UserFilter filter, [FromQuery] PageParam pageParam, [FromQuery] UserSortBy sortBy)
@@ -43,7 +55,7 @@ namespace Template.Controllers
                         result.HasPrevious
                     };
 
-                    Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pageData));
+                    Response.Headers["X-Pagination"] = JsonSerializer.Serialize(pageData);
                 }
 
                 return Ok(result);
@@ -55,6 +67,14 @@ namespace Template.Controllers
             }
         }
 
+        /// <summary>
+        /// Get user by id
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>User data</returns>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or not found</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet("{id}")]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
         public async Task<IActionResult> GetUserByIdAsync([Required][FromRoute] string id)
@@ -71,6 +91,14 @@ namespace Template.Controllers
             }
         }
 
+        /// <summary>
+        /// Add user
+        /// </summary>
+        /// <param name="input"></param>
+        /// <returns>User data</returns>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or can not add</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPost]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
         public async Task<IActionResult> AddUserAsync([Required][FromBody] UserRequest input)
@@ -87,6 +115,15 @@ namespace Template.Controllers
             }
         }
 
+        /// <summary>
+        /// Update user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="input"></param>
+        /// <returns>User data</returns>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or can not update</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpPut("{id}")]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
         public async Task<IActionResult> UpdateUserAsync([Required][FromRoute] string id, [Required][FromBody] UserRequest input)
@@ -103,6 +140,13 @@ namespace Template.Controllers
             }
         }
 
+        /// <summary>
+        /// Delete user
+        /// </summary>
+        /// <param name="id"></param>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or can not delete</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpDelete("{id}")]
         [ProducesResponseType(200)]
         public async Task<IActionResult> DeleteUserAsync([Required][FromRoute] string id)
