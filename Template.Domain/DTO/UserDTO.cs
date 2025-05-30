@@ -6,6 +6,10 @@ namespace Template.Domain.DTO
 {
     public class UserRequest : UserDTO
     {
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Required(ErrorMessage = "Password is required.")]
+        public string? Password { get; set; }
+
         [Obsolete("Inaccessible hidden inherited variable", true)]
         public new string? Id { get; set; }
 

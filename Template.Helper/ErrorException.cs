@@ -1,6 +1,4 @@
-﻿using System.Runtime.Serialization;
-
-namespace Template.Helper
+﻿namespace Template.Helper
 {
     [Serializable()]
     public class ErrorException : Exception
@@ -14,11 +12,13 @@ namespace Template.Helper
         {
             // Add any type-specific logic.
         }
+
         public ErrorException(string message, Exception innerException) :
            base(message, innerException)
         {
             // Add any type-specific logic for inner exceptions.
         }
+
         //protected ErrorException(SerializationInfo info,
         //   StreamingContext context) : base(info, context)
         //{
