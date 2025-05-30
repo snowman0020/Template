@@ -5,6 +5,7 @@ using Microsoft.OpenApi.Models;
 using Serilog;
 using System.Reflection;
 using System.Text;
+using Template.Domain.AppSetting;
 using Template.Helper;
 using Template.Infrastructure;
 using Template.Service.IServices;
@@ -54,6 +55,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
 
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
 
 builder.Services.AddControllersWithViews();
 
@@ -79,6 +81,13 @@ builder.Services.AddSwaggerGen(sw =>
     sw.DescribeAllParametersInCamelCase();
     sw.OperationFilter<OperationFilter>();
 });
+
+//Mapping appsetting.json to class
+builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
+builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
+builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
+builder.Services.Configure<AllowedHostsData>(builder.Configuration.GetSection("AllowedHosts"));
+builder.Services.Configure<DbConnectionStringData>(builder.Configuration.GetSection("DbConnectionString"));
 
 var app = builder.Build();
 
