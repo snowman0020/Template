@@ -68,6 +68,34 @@ namespace Template.Controllers
         }
 
         /// <summary>
+        /// Get user by me
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns>User data</returns>
+        /// <response code="200">Returns 200 if success</response>
+        /// <response code="400">Returns 400 if error or not found</response>
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("Me")]
+        [ProducesResponseType(200, Type = typeof(UserDTO))]
+        public async Task<IActionResult> GetUserByMeAsync()
+        {
+            try
+            {
+                var userClaimsList = HttpContext.User.Claims.ToList();
+
+                var userId = userClaimsList[0].Value;
+
+                var result = await _userService.GetUserByIdAsync(userId);
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                var errorExceptionResult = _errorExceptionHandler.ErrorException(ex, Error.Status, Error.Title, Error.Message);
+                return new ObjectResult(errorExceptionResult) { StatusCode = errorExceptionResult.Status };
+            }
+        }
+
+        /// <summary>
         /// Get user by id
         /// </summary>
         /// <param name="id"></param>
@@ -123,7 +151,7 @@ namespace Template.Controllers
         /// <returns>User data</returns>
         /// <response code="200">Returns 200 if success</response>
         /// <response code="400">Returns 400 if error or can not update</response>
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [AllowAnonymous]
         [HttpPut("{id}")]
         [ProducesResponseType(200, Type = typeof(UserDTO))]
         public async Task<IActionResult> UpdateUserAsync([Required][FromRoute] string id, [Required][FromBody] UserRequest input)

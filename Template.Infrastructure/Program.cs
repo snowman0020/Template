@@ -14,6 +14,7 @@ builder.UseSqlServer(connectionString);
 var db = new TemplateDbContext(builder.Options);
 
 Console.WriteLine("Database migrating...");
+
 try
 {
     db.Database.Migrate();

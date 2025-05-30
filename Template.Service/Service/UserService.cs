@@ -17,7 +17,7 @@ namespace Template.Service.Services
         private readonly TemplateDbContext _db;
         private readonly ILogger<UserService> _logger;
 
-        public UserService(TemplateDbContext db, ILogger<UserService> logger, IErrorExceptionHandler customExceptionHandler)
+        public UserService(TemplateDbContext db, ILogger<UserService> logger)
         {
             _db = db;
             _logger = logger;
@@ -29,7 +29,7 @@ namespace Template.Service.Services
             {
                 _logger.LogInformation($"call: GetUserListAsync: filter: {JsonSerializer.Serialize(filter)}, pageParam: {JsonSerializer.Serialize(pageParam)}, sortBy: {JsonSerializer.Serialize(sortBy)}");
 
-                var query = _db.Users.AsNoTracking();
+                var queryUser = _db.Users.AsNoTracking();
 
                 #region Filter
                 if (filter != null)
@@ -38,22 +38,22 @@ namespace Template.Service.Services
                     {
                         _logger.LogInformation("filter: FullName");
                         string fullName = filter.FullName;
-                        query = query.Where(f => f.FirstName == fullName || f.LastName == fullName);
+                        queryUser = queryUser.Where(qu => qu.FirstName == fullName || qu.LastName == fullName);
                     }
                     if (!string.IsNullOrEmpty(filter.Phone))
                     {
                         _logger.LogInformation("filter: Phone");
                         string phone = filter.Phone;
-                        query = query.Where(f => f.Phone == phone);
+                        queryUser = queryUser.Where(qu => qu.Phone == phone);
                     }
                     if (!string.IsNullOrEmpty(filter.Email))
                     {
                         _logger.LogInformation("filter: email");
                         string email = filter.Email;
-                        query = query.Where(f => f.Email == email);
+                        queryUser = queryUser.Where(qu => qu.Email == email);
                     }
 
-                    _logger.LogDebug($"filter: data: {JsonSerializer.Serialize(query.ToList())}");
+                    _logger.LogDebug($"filter: data: {JsonSerializer.Serialize(queryUser.ToList())}");
                 }
                 #endregion
 
@@ -66,54 +66,56 @@ namespace Template.Service.Services
                             if (sortBy.Ascending)
                             {
                                 _logger.LogInformation("sortBy: FullName => Ascending");
-                                query = query.OrderBy(o => o.FirstName).OrderBy(o => o.LastName);
+                                queryUser = queryUser.OrderBy(qu => qu.FirstName).OrderBy(o => o.LastName);
                             }
                             else
                             {
                                 _logger.LogInformation("sortBy: FullName => Descending");
-                                query = query.OrderByDescending(o => o.FirstName).OrderByDescending(o => o.LastName);
+                                queryUser = queryUser.OrderByDescending(qu => qu.FirstName).OrderByDescending(o => o.LastName);
                             }
                             break;
                         case UserEnumSortBy.Phone:
                             if (sortBy.Ascending)
                             {
                                 _logger.LogInformation("sortBy: Phone => Ascending");
-                                query = query.OrderBy(o => o.Phone);
+                                queryUser = queryUser.OrderBy(qu => qu.Phone);
                             }
                             else
                             {
                                 _logger.LogInformation("sortBy: Phone => Descending");
-                                query = query.OrderByDescending(o => o.Phone);
+                                queryUser = queryUser.OrderByDescending(qu => qu.Phone);
                             }
                             break;
                         case UserEnumSortBy.Email:
                             if (sortBy.Ascending)
                             {
                                 _logger.LogInformation("sortBy: Email => Ascending");
-                                query = query.OrderBy(o => o.Email);
+                                queryUser = queryUser.OrderBy(qu => qu.Email);
                             }
                             else
                             {
                                 _logger.LogInformation("sortBy: Email => Descending");
-                                query = query.OrderByDescending(o => o.Email);
+                                queryUser = queryUser.OrderByDescending(qu => qu.Email);
                             }
                             break;
                     }
 
-                    _logger.LogDebug($"sortBy: data: {JsonSerializer.Serialize(query.ToList())}");
+                    _logger.LogDebug($"sortBy: data: {JsonSerializer.Serialize(queryUser.ToList())}");
                 }
                 else
                 {
                     _logger.LogInformation("sortBy default: OrderNumber => Ascending");
-                    query = query.OrderBy(o => o.OrderNumber);
-                    _logger.LogDebug($"sortBy default: data: {JsonSerializer.Serialize(query.ToList())}");
+
+                    queryUser = queryUser.OrderBy(qu => qu.OrderNumber);
+
+                    _logger.LogDebug($"sortBy default: data: {JsonSerializer.Serialize(queryUser.ToList())}");
                 }
                 #endregion
 
                 #region Paging
-                var queryResult = await PageList<Users>.ToModelList(query, pageParam);
+                var queryUserResult = await PageList<Users>.ToModelList(queryUser, pageParam);
 
-                var userListDTO = queryResult.Select(qr => UserDTO.CreateFromModel(qr)).ToList();
+                var userListDTO = queryUserResult.Select(qur => UserDTO.CreateFromModel(qur)).ToList();
 
                 var result = PageList<UserDTO>.ToPagedList(userListDTO, pageParam);
                 #endregion
@@ -133,6 +135,7 @@ namespace Template.Service.Services
                 throw;
             }
         }
+
         public async Task<UserDTO> GetUserByIdAsync(string Id)
         {
             var result = new UserDTO();
@@ -141,9 +144,9 @@ namespace Template.Service.Services
             {
                 _logger.LogInformation($"call: GetUserByIdAsync: {Id}");
 
-                var model = await _db.Users.Where(m => m.ID == Id).AsNoTracking().FirstOrDefaultAsync();
+                var modelUser = await _db.Users.Where(u => u.ID == Id && u.IsDeleted == false).AsNoTracking().FirstOrDefaultAsync();
 
-                if (model == null)
+                if (modelUser == null)
                 {
                     Error.Status = ErrorStatus.BAD_REQUEST;
                     Error.Title = "Data not found.";
@@ -153,7 +156,7 @@ namespace Template.Service.Services
                 }
                 else
                 {
-                    if (model.IsDeleted)
+                    if (modelUser.IsDeleted)
                     {
                         Error.Status = ErrorStatus.BAD_REQUEST;
                         Error.Title = "Data has deleted.";
@@ -163,9 +166,9 @@ namespace Template.Service.Services
                     }
                 }
 
-                _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(model)}");
+                _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(modelUser)}");
 
-                result = UserDTO.CreateFromModel(model);
+                result = UserDTO.CreateFromModel(modelUser);
 
                 _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(result)}");
             }
@@ -188,15 +191,16 @@ namespace Template.Service.Services
 
             return result;
         }
-        public async Task<UserDTO> AddUserAsync(UserDTO input)
+
+        public async Task<UserDTO> AddUserAsync(UserRequest input)
         {
             var result = new UserDTO();
 
             _logger.LogInformation($"call: AddUserAsync: {JsonSerializer.Serialize(input)}");
 
-            var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
+            var modelUser = await _db.Users.Where(u => u.FirstName == input.FirstName && u.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
-            if (model != null)
+            if (modelUser != null)
             {
                 Error.Status = ErrorStatus.BAD_REQUEST;
                 Error.Title = "Firstname and Lastname duplicate.";
@@ -212,6 +216,11 @@ namespace Template.Service.Services
                     var user = new Users();
 
                     input.AddToModel(user);
+
+                    if (!string.IsNullOrEmpty(input.Password))
+                    {
+                        user.Password = PasswordHash.Encrypt(input.Password);
+                    }
 
                     await _db.Users.AddAsync(user);
                     await _db.SaveChangesAsync();
@@ -248,7 +257,8 @@ namespace Template.Service.Services
 
             return result;
         }
-        public async Task<UserDTO> UpdateUserAsync(string Id, UserDTO input)
+
+        public async Task<UserDTO> UpdateUserAsync(string Id, UserRequest input)
         {
             var result = new UserDTO();
 
@@ -263,9 +273,9 @@ namespace Template.Service.Services
                 throw new ErrorException();
             }
 
-            var model = await _db.Users.Where(m => m.FirstName == input.FirstName && m.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
+            var modelCheckUser = await _db.Users.Where(u => u.FirstName == input.FirstName && u.LastName == input.LastName && u.ID != Id && u.IsDeleted == true).FirstOrDefaultAsync();
 
-            if (model != null && model.ID != Id)
+            if (modelCheckUser != null)
             {
                 Error.Status = ErrorStatus.BAD_REQUEST;
                 Error.Title = "Firstname and Lastname duplicate.";
@@ -278,15 +288,46 @@ namespace Template.Service.Services
             {
                 try
                 {
-                    var user = await _db.Users.Where(m => m.ID == Id).FirstOrDefaultAsync();
+                    var modelUser = await _db.Users.Where(u => u.ID == Id && u.IsDeleted == false).FirstOrDefaultAsync();
 
-                    if (user != null)
+                    if (modelUser == null)
                     {
-                        input.UpdateToModel(user);
+                        Error.Status = ErrorStatus.BAD_REQUEST;
+                        Error.Title = "Data not found.";
+                        Error.Message = "";
 
-                        _db.Users.Update(user);
-                        await _db.SaveChangesAsync();
+                        throw new ErrorException();
                     }
+
+                    if (modelUser == null)
+                    {
+                        Error.Status = ErrorStatus.BAD_REQUEST;
+                        Error.Title = "Data not found.";
+                        Error.Message = "";
+
+                        throw new ErrorException();
+                    }
+                    else
+                    {
+                        if (modelUser.IsDeleted)
+                        {
+                            Error.Status = ErrorStatus.BAD_REQUEST;
+                            Error.Title = "Data has deleted.";
+                            Error.Message = "";
+
+                            throw new ErrorException();
+                        }
+                    }
+
+                    input.UpdateToModel(modelUser);
+
+                    if (!string.IsNullOrEmpty(input.Password))
+                    {
+                        modelUser.Password = PasswordHash.Encrypt(input.Password);
+                    }
+
+                    _db.Users.Update(modelUser);
+                    await _db.SaveChangesAsync();
 
                     result = await GetUserByIdAsync(Id);
 
@@ -318,6 +359,7 @@ namespace Template.Service.Services
 
             return result;
         }
+
         public async Task DeleteUserAsync(string Id)
         {
             _logger.LogInformation($"call: DeleteUserAsync: {Id}");
