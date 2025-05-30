@@ -30,7 +30,6 @@ namespace Template.Infrastructure.Models
         [Description("Token expire data.")]
         public DateTime ExpiredDate { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Description("Record No.")]
         public int OrderNumber { get; set; }
 

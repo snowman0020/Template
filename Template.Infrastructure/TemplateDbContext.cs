@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
+using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Template.Infrastructure.Models;
 
@@ -22,6 +23,8 @@ namespace Template.Infrastructure
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             //Table User
+            modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Users>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
             modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
@@ -29,6 +32,8 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
 
             //Table Token
+            modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");

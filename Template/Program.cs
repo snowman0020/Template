@@ -86,8 +86,7 @@ builder.Services.AddSwaggerGen(sw =>
 builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
 builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
 builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
-builder.Services.Configure<AllowedHostsData>(builder.Configuration.GetSection("AllowedHosts"));
-builder.Services.Configure<DbConnectionStringData>(builder.Configuration.GetSection("DbConnectionString"));
+builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
 
 var app = builder.Build();
 

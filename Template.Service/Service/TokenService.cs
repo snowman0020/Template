@@ -34,7 +34,6 @@ namespace Template.Service.Services
             {
                 try
                 {
-                    string email = input.Email ?? "";
 
                     string issuer = _jwtData.Issuer ?? "";
                     int expiryMinutes = _jwtData.ExpMinutes ?? 15;
@@ -44,6 +43,7 @@ namespace Template.Service.Services
                     {
                         _logger.LogInformation("Grant Type: Password");
 
+                        string email = input.Email ?? "";
                         string password = input.Password ?? "";
 
                         var modelUser = await _db.Users.Where(u => u.Email == email && u.IsDeleted == false).FirstOrDefaultAsync();
@@ -123,6 +123,8 @@ namespace Template.Service.Services
 
                             throw new ErrorException();
                         }
+
+                        string email = modelToken.Email ?? "";
 
                         var modelUser = await _db.Users.Where(u => u.Email == email).FirstOrDefaultAsync();
 
@@ -234,7 +236,7 @@ namespace Template.Service.Services
             }
         }
 
-        public async Task<LoginDTO> GetTokenByEmailAsync(string email)
+        private async Task<LoginDTO> GetTokenByEmailAsync(string email)
         {
             var result = new LoginDTO();
 

@@ -12,8 +12,8 @@ using Template.Infrastructure;
 namespace Template.Infrastructure.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20250530135051_AddTokenAndUserTable")]
-    partial class AddTokenAndUserTable
+    [Migration("20250530200936_AddTableUserAndToken")]
+    partial class AddTableUserAndToken
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

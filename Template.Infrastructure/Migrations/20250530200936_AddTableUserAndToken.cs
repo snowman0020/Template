@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Template.Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class AddTokenAndUserTable : Migration
+    public partial class AddTableUserAndToken : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

@@ -37,7 +37,6 @@ namespace Template.Infrastructure.Models
         [Description("Password encrypt.")]
         public string? Password { get; set; }
 
-        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         [Description("Record No.")]
         public int OrderNumber { get; set; }
 
