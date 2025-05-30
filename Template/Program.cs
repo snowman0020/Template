@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -23,15 +24,6 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
 {
     //loggerConfiguration.WriteTo.Console();
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-});
-
-//Add Entity Framework
-builder.Services.AddDbContext<TemplateDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration["DbConnectionString"], x =>
-    {
-        x.MigrationsAssembly("Template.Infrastructure");
-    });
 });
 
 //Add JWT
@@ -87,6 +79,22 @@ builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Loggin
 builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
 builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
+
+//Add DbContext
+builder.Services.AddDbContext<TemplateDbContext>(options =>
+{
+    var dbConnectionStringData = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<CustomSettingData>>().Value;
+
+    if (dbConnectionStringData != null)
+    {
+        string dbConnectionString = dbConnectionStringData.DbConnectionString ?? "";
+
+        options.UseSqlServer(dbConnectionString, s =>
+        {
+            s.MigrationsAssembly("Template.Infrastructure");
+        });
+    }
+});
 
 var app = builder.Build();
 

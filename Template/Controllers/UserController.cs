@@ -34,7 +34,7 @@ namespace Template.Controllers
         /// <returns>User List and paging</returns>
         /// <response code="200">Returns 200 if success</response>
         /// <response code="400">Returns 400 if error or not found</response>
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [HttpGet]
         [ProducesResponseType(200, Type = typeof(PageList<UserDTO>))]
         public async Task<IActionResult> GetUserListAsync([FromQuery] UserFilter filter, [FromQuery] PageParam pageParam, [FromQuery] UserSortBy sortBy)
