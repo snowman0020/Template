@@ -13,6 +13,7 @@ namespace Template.Infrastructure
         }
         // Registered DB Model in TemplateDbContext file
         public DbSet<Users> Users { get; set; }
+        public DbSet<Tokens> Tokens { get; set; }
 
         /*
           OnModelCreating mainly used to configured our EF model
@@ -20,12 +21,17 @@ namespace Template.Infrastructure
          */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAddOrUpdate();
+            //Table User
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
             modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
+
+            //Table Token
+            modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
+            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             //// Inserting record in User table
             //var user = new Users()

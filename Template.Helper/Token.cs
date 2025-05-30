@@ -1,0 +1,48 @@
+﻿using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+using Template.Domain.DTO;
+
+namespace Template.Helper
+{
+    public static class Token
+    {
+        public static LoginDTO CreateNewToken(string userId, string email, string issuer, int expiryMinutes, string key)
+        {
+            var result = new LoginDTO();
+
+            var refreshToken = Guid.NewGuid().ToString("N");
+
+            var subject = new ClaimsIdentity
+            (
+                new List<Claim> {
+                new Claim("id", userId.ToString()),
+                new Claim("name", email.ToString()),
+            });
+
+            var tokenDescriptor = new SecurityTokenDescriptor
+            {
+                Issuer = issuer,
+                IssuedAt = DateTime.Now,
+                NotBefore = DateTime.Now,
+                Expires = DateTime.Now.AddMinutes(expiryMinutes),
+                Subject = subject,
+                SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)), SecurityAlgorithms.HmacSha256)
+            };
+
+            var _jwtSecurityTokenHandler = new JwtSecurityTokenHandler();
+            var jwt = _jwtSecurityTokenHandler.CreateJwtSecurityToken(tokenDescriptor);
+            var token = _jwtSecurityTokenHandler.WriteToken(jwt);
+            var centuryBegin = new DateTime(1970, 1, 1).ToUniversalTime();
+            var expires = (new TimeSpan(tokenDescriptor.Expires.Value.Ticks - centuryBegin.Ticks).TotalSeconds);
+
+            result.Token = token;
+            result.Expires = expires;
+            result.RefreshToken = refreshToken;
+            result.Email = email;
+
+            return result;
+        } 
+    }
+}
