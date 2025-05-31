@@ -23,7 +23,7 @@ namespace Template.UnitTest
         }
 
         [Fact]
-        public void UnProtectInformantionTest()
+        public void UnProtectInformationTest()
         {
             string sensitiveData = "Test Information.";
             var protectedData = _dataProtected.ProtectInformation(sensitiveData);
