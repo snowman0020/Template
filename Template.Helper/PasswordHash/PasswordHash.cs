@@ -14,7 +14,7 @@ namespace Template.Helper.PasswordHash
 
         public string Encrypt(string password)
         {
-            //_logger.LogInformation($"call: Encrypt: userId: {password}");
+           _logger.LogInformation($"call: Encrypt");
 
             string passwordHash = Argon2.Hash(password);
 
@@ -25,6 +25,8 @@ namespace Template.Helper.PasswordHash
 
         public bool Verify(string passwordHash, string password)
         {
+            _logger.LogInformation($"call: Verify");
+
             bool isVerify = Argon2.Verify(passwordHash, password);
 
             return isVerify;

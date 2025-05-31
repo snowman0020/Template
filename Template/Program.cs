@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -7,7 +8,10 @@ using System.Reflection;
 using System.Text;
 using Template.Domain.AppSetting;
 using Template.Helper;
+using Template.Helper.DataProtected;
 using Template.Helper.ErrorException;
+using Template.Helper.PasswordHash;
+using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Service.IServices;
 using Template.Service.Services;
@@ -60,8 +64,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         }
     });
 
+//Add DataProtection 
+var contentRootPath = builder.Environment.ContentRootPath;
+
+var dataProtectionPath = Path.Combine(contentRootPath, "dataProtectedInformation");
+
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+
 //Add Service
 builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
+builder.Services.AddScoped<IDataProtected, DataProtected>();
+builder.Services.AddScoped<IPasswordHash, PasswordHash>();
+builder.Services.AddScoped<IToken, Token>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
