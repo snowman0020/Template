@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Template.Domain.DTO;
 using Template.Infrastructure;
-using Template.Infrastructure.Models;
 using Template.Service.IServices;
 
 namespace Template.UnitTest

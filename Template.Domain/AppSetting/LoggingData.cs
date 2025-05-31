@@ -2,12 +2,12 @@
 {
     public class LoggingData
     {
-        public logLvel? LogLevel { get; set; }
+        public LogLevelData? LogLevel { get; set; }
         public string? Type { get; set; }
         public string? Title { get; set; }
         public string? Detail { get; set; }
 
-        public class logLvel
+        public class LogLevelData
         {
             public string? Default { get; set; }
             public string? Microsoft { get; set; }

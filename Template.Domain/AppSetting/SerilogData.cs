@@ -3,12 +3,12 @@
     public class SerilogData
     {
         public List<string>? Using { get; set; }
-        public minimumLevel? MinimumLevel { get; set; }
-        public List<writeTo>? WriteTo { get; set; }
+        public MinimumLevelData? MinimumLevel { get; set; }
+        public List<WriteToData>? WriteTo { get; set; }
         public List<string>? Enrich { get; set; }
-        public properties? Properties { get; set; }
+        public PropertiesData? Properties { get; set; }
 
-        public class minimumLevel
+        public class MinimumLevelData
         {
             public string? Default { get; set; }
             public Override? Override { get; set; }
@@ -20,7 +20,7 @@
             public string? MicrosoftAspNetCore { get; set; }
         }
 
-        public class writeTo
+        public class WriteToData
         {
             public string? Name { get; set; }
             public Args? Args { get; set; }
@@ -32,7 +32,7 @@
             public string? rollingInterval { get; set; }
         }
 
-        public class properties
+        public class PropertiesData
         {
             public string? ApplicationName { get; set; }
         }

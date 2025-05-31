@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -26,21 +25,38 @@ builder.Host.UseSerilog((context, loggerConfiguration) =>
     loggerConfiguration.ReadFrom.Configuration(context.Configuration);
 });
 
-//Add JWT
-string jwtIssuer = builder.Configuration["JWT:Issuer"] ?? "";
-string jwtKey = builder.Configuration["JWT:Key"] ?? "";
+//Mapping appsetting.json to class
+builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
+builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
+builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
+builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(jwt =>
+    .AddJwtBearer(options =>
     {
-        jwt.RequireHttpsMetadata = false;
-        jwt.SaveToken = true;
-        jwt.TokenValidationParameters = new TokenValidationParameters()
+        var jwtData = builder.Configuration.GetSection("JWT").Get<JWTData>();
+
+        if (jwtData != null)
         {
-            ValidateAudience = false,
-            ValidIssuer = jwtIssuer,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
-        };
+            //Add JWT
+            string issuer = jwtData.Issuer ?? "";
+            string key = jwtData.Key ?? "";
+
+            options.RequireHttpsMetadata = false;
+
+            options.SaveToken = true;
+
+            options.TokenValidationParameters = new TokenValidationParameters()
+            {
+                ValidateAudience = false,
+                ValidIssuer = issuer,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key))
+            };
+        }
+        else
+        {
+            throw new BadHttpRequestException("Jwt Setting Error.");
+        }
     });
 
 //Add Service
@@ -55,14 +71,15 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddEndpointsApiExplorer();
 
 //Add Swagger
-builder.Services.AddSwaggerGen(sw =>
+builder.Services.AddSwaggerGen(options =>
 {
-    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    sw.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 
-    sw.SwaggerDoc("v1", new OpenApiInfo { Title = "Template API", Version = "v1" });
+    options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFile));
 
-    sw.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Template API", Version = "v1" });
+
+    options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
         Description = "JWT Authorization header using the Bearer scheme. Example: Bearer 12345abcdef",
         Name = "Authorization",
@@ -70,29 +87,27 @@ builder.Services.AddSwaggerGen(sw =>
         Type = SecuritySchemeType.ApiKey
     });
 
-    sw.DescribeAllParametersInCamelCase();
-    sw.OperationFilter<OperationFilter>();
+    options.DescribeAllParametersInCamelCase();
+    options.OperationFilter<OperationFilter>();
 });
-
-//Mapping appsetting.json to class
-builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
-builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
-builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
-builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
 
 //Add DbContext
 builder.Services.AddDbContext<TemplateDbContext>(options =>
 {
-    var dbConnectionStringData = builder.Services.BuildServiceProvider().GetRequiredService<IOptions<CustomSettingData>>().Value;
+    var customSettingData = builder.Configuration.GetSection("CustomSetting").Get<CustomSettingData>();
 
-    if (dbConnectionStringData != null)
+    if (customSettingData != null)
     {
-        string dbConnectionString = dbConnectionStringData.DbConnectionString ?? "";
+        var dbConnectionStringData =customSettingData.DbConnectionString ?? "";
 
-        options.UseSqlServer(dbConnectionString, s =>
+        options.UseSqlServer(dbConnectionStringData, s =>
         {
             s.MigrationsAssembly("Template.Infrastructure");
         });
+    }
+    else
+    {
+        throw new BadHttpRequestException("custom Setting Error.");
     }
 });
 

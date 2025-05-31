@@ -71,9 +71,9 @@ namespace Template.UnitTest
 
                 isDelete = true;
             }
-            catch (Exception ex)
+            catch
             {
-                throw ex;
+              
             }
 
             Assert.True(isDelete);

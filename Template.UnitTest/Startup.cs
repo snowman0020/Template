@@ -1,4 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -13,17 +15,10 @@ namespace Template.UnitTest
 {
     public class Startup
     {
-        private IConfiguration _configuration;
-        public void ConfigureHost(IHostBuilder hostBuilder) =>
-        hostBuilder
-            .ConfigureHostConfiguration(builder => { })
-            .ConfigureAppConfiguration((context, builder) => {
-                builder.AddJsonFile("appsettings.json");
-                _configuration = builder.Build();
-            });
-
         public void ConfigureServices(IServiceCollection services)
         {
+            var _configuration = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory).AddJsonFile("appsettings.json", false, true).Build();
+
             //Mapping appsetting.json to class
             services.Configure<JWTData>(_configuration.GetSection("JWT"));
             services.Configure<CustomSettingData>(_configuration.GetSection("CustomSetting"));

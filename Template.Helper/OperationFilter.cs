@@ -8,7 +8,6 @@ namespace Template.Helper
     {
         public void Apply(OpenApiOperation operation, OperationFilterContext context)
         {
-
             if (context != null && context.MethodInfo != null && context.MethodInfo.DeclaringType != null)
             {
                 var isAuthorized = context.MethodInfo.DeclaringType.GetCustomAttributes(true).OfType<AuthorizeAttribute>().Any() ||

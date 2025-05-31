@@ -70,7 +70,6 @@ namespace Template.Controllers
         /// <summary>
         /// Get user by me
         /// </summary>
-        /// <param name="id"></param>
         /// <returns>User data</returns>
         /// <response code="200">Returns 200 if success</response>
         /// <response code="400">Returns 400 if error or not found</response>
