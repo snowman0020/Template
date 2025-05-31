@@ -4,7 +4,9 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Template.Domain.AppSetting;
 using Template.Domain.DTO;
-using Template.Helper;
+using Template.Helper.ErrorException;
+using Template.Helper.PasswordHash;
+using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
 using Template.Service.IServices;
@@ -16,12 +18,16 @@ namespace Template.Service.Services
         private readonly TemplateDbContext _db;
         private readonly ILogger<TokenService> _logger;
         private readonly JWTData _jwtData;
+        private readonly IPasswordHash _passwordHash;
+        private readonly IToken _token;
 
-        public TokenService(TemplateDbContext db, ILogger<TokenService> logger, IOptions<JWTData> jwtData)
+        public TokenService(TemplateDbContext db, ILogger<TokenService> logger, IOptions<JWTData> jwtData, IPasswordHash passwordHash, IToken token)
         {
             _db = db;
             _logger = logger;
             _jwtData = jwtData.Value;
+            _passwordHash = passwordHash;
+            _token = token;
         }
 
         public async Task<LoginDTO> LoginAsync(LoginRequest input)
@@ -57,9 +63,9 @@ namespace Template.Service.Services
                             throw new ErrorException();
                         }
 
-                        string passwordEncrypt = PasswordHash.Encrypt(password);
+                        string passwordEncrypt = _passwordHash.Encrypt(password);
 
-                        if (!PasswordHash.Verify(passwordEncrypt, password))
+                        if (!_passwordHash.Verify(passwordEncrypt, password))
                         {
                             Error.Status = ErrorStatus.UN_AUTHORIZED;
                             Error.Title = "Password wrong.";
@@ -70,9 +76,7 @@ namespace Template.Service.Services
 
                         string userId = modelUser.ID ?? "";
 
-                        var createNewToken = Token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
-
-                        //var newToken = createNewToken.Token ?? "";
+                        var createNewToken = _token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
 
                         var token = new Tokens();
 
@@ -139,12 +143,10 @@ namespace Template.Service.Services
 
                         string userId = modelUser.ID ?? "";
 
-                        var createRefreshToken = Token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
+                        var createRefreshToken = _token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
 
                         _db.Remove(modelToken);
                         await _db.SaveChangesAsync();
-
-                        //var refreshTokens = createRefreshToken.Token ?? "";
 
                         var token = new Tokens();
 

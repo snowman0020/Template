@@ -7,7 +7,7 @@ using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
-using Template.Helper;
+using Template.Helper.ErrorException;
 using Template.Service.IServices;
 
 namespace Template.Controllers

@@ -1,4 +1,4 @@
-﻿namespace Template.Helper
+﻿namespace Template.Helper.ErrorException
 {
     [Serializable()]
     public class ErrorException : Exception

@@ -1,6 +1,6 @@
 ﻿using Template.Domain.DTO;
 
-namespace Template.Helper
+namespace Template.Helper.ErrorException
 {
     public interface IErrorExceptionHandler
     {

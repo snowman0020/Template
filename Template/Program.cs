@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text;
 using Template.Domain.AppSetting;
 using Template.Helper;
+using Template.Helper.ErrorException;
 using Template.Infrastructure;
 using Template.Service.IServices;
 using Template.Service.Services;

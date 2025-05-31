@@ -5,7 +5,8 @@ using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
-using Template.Helper;
+using Template.Helper.ErrorException;
+using Template.Helper.PasswordHash;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
 using Template.Service.IServices;
@@ -16,11 +17,13 @@ namespace Template.Service.Services
     {
         private readonly TemplateDbContext _db;
         private readonly ILogger<UserService> _logger;
+        private readonly IPasswordHash _passwordHash;
 
-        public UserService(TemplateDbContext db, ILogger<UserService> logger)
+        public UserService(TemplateDbContext db, ILogger<UserService> logger, IPasswordHash passwordHash)
         {
             _db = db;
             _logger = logger;
+            _passwordHash = passwordHash;
         }
 
         public async Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy)
@@ -219,7 +222,7 @@ namespace Template.Service.Services
 
                     if (!string.IsNullOrEmpty(input.Password))
                     {
-                        user.Password = PasswordHash.Encrypt(input.Password);
+                        user.Password = _passwordHash.Encrypt(input.Password);
                     }
 
                     await _db.Users.AddAsync(user);
@@ -323,7 +326,7 @@ namespace Template.Service.Services
 
                     if (!string.IsNullOrEmpty(input.Password))
                     {
-                        modelUser.Password = PasswordHash.Encrypt(input.Password);
+                        modelUser.Password = _passwordHash.Encrypt(input.Password);
                     }
 
                     _db.Users.Update(modelUser);

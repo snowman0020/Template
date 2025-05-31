@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Template.Domain.DTO;
-using Template.Helper;
+using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Service.IServices;
 
@@ -10,11 +10,13 @@ namespace Template.UnitTest
     {
         private readonly IUserService _userService;
         private readonly TemplateDbContext _db;
+        private readonly IToken _token;
 
-        public TokenUnitTest(IUserService userService, TemplateDbContext db)
+        public TokenUnitTest(IUserService userService, TemplateDbContext db, IToken token)
         {
             _userService = userService;
             _db = db;
+            _token = token;
         }
 
         public void Dispose()
@@ -55,7 +57,7 @@ namespace Template.UnitTest
             int expMinutes = 15;
             string issuer = "http://localhost:5011";
 
-            var createNewToken = Token.CreateNewToken(userId, email, issuer, expMinutes, key);
+            var createNewToken = _token.CreateNewToken(userId, email, issuer, expMinutes, key);
 
             Assert.NotNull(createNewToken);
             Assert.NotNull(createNewToken.Token);

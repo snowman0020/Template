@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 using Template.Domain.DTO;
-using Template.Helper;
+using Template.Helper.ErrorException;
 using Template.Service.IServices;
 
 namespace Template.Controllers

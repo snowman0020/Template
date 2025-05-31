@@ -1,14 +1,21 @@
-using Template.Helper;
+using Template.Helper.PasswordHash;
 
 namespace Template.UnitTest
 {
-    public class PasswordHashUnitTest
+    public class PasswordHashUnitTest : IClassFixture<Startup>
     {
+        private readonly IPasswordHash _passwordHash;
+
+        public PasswordHashUnitTest(IPasswordHash passwordHash)
+        {
+            _passwordHash = passwordHash;
+        }
+
         [Fact]
         public void PasswordEncryptTest()
         {
             string password = "123455678";
-            var passwordEncrypt = PasswordHash.Encrypt(password);
+            var passwordEncrypt = _passwordHash.Encrypt(password);
 
             Assert.NotEmpty(passwordEncrypt);
             Assert.NotNull(passwordEncrypt);
@@ -19,13 +26,13 @@ namespace Template.UnitTest
         public void PasswordEncryptVerifyTest()
         {
             string password = "123455678";
-            var passwordEncrypt = PasswordHash.Encrypt(password);
+            var passwordEncrypt = _passwordHash.Encrypt(password);
 
             Assert.NotEmpty(passwordEncrypt);
             Assert.NotNull(passwordEncrypt);
             Assert.NotEqual(password, passwordEncrypt);
 
-            var passwordVerify = PasswordHash.Verify(passwordEncrypt, password);
+            var passwordVerify = _passwordHash.Verify(passwordEncrypt, password);
 
             Assert.True(passwordVerify);
         }

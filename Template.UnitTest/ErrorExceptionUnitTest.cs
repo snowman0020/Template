@@ -1,5 +1,5 @@
 using Template.Domain.DTO;
-using Template.Helper;
+using Template.Helper.ErrorException;
 
 namespace Template.UnitTest
 {
