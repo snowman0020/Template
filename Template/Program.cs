@@ -1,3 +1,4 @@
+using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
@@ -9,6 +10,8 @@ using System.Text;
 using Template.Domain.AppSetting;
 using Template.Helper.DataProtected;
 using Template.Helper.ErrorException;
+using Template.Helper.MessageConsume;
+using Template.Helper.MessagePublish;
 using Template.Helper.OperationFilter;
 using Template.Helper.PasswordHash;
 using Template.Helper.Token;
@@ -35,7 +38,9 @@ builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Loggin
 builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
 builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
+builder.Services.Configure<RabbitMQData>(builder.Configuration.GetSection("RabbitMQ"));
 
+//Add JWT
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -43,7 +48,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
         if (jwtData != null)
         {
-            //Add JWT
             string issuer = jwtData.Issuer ?? "";
             string key = jwtData.Key ?? "";
 
@@ -76,16 +80,20 @@ builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
 builder.Services.AddScoped<IDataProtected, DataProtected>();
 builder.Services.AddScoped<IPasswordHash, PasswordHash>();
 builder.Services.AddScoped<IToken, Token>();
+builder.Services.AddScoped<IMessagePublish, MessagePublish>();
+builder.Services.AddScoped<IMessageConsume, MessageConsume>();
 
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IMessageService, MessageService>();
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 
+//Add Swagger
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
-//Add Swagger
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -124,6 +132,45 @@ builder.Services.AddDbContext<TemplateDbContext>(options =>
     {
         throw new BadHttpRequestException("custom Setting Error.");
     }
+});
+
+//Add RabbitMQ
+builder.Services.AddMassTransit(options =>
+{
+    var rabbitMQData = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQData>();
+
+    if (rabbitMQData != null)
+    {
+        string hostName = rabbitMQData.HostName ?? "";
+        string username = rabbitMQData.UserName ?? "";
+        string password = rabbitMQData.Password ?? "";
+        string queueName = rabbitMQData.QueueName ?? "";
+
+        options.AddConsumer<MessageConsume>();
+        options.UsingRabbitMq((context, cfg) =>
+        {
+            cfg.Host(hostName, "/", h =>
+            {
+                h.Username(username);
+                h.Password(password);
+            });
+            cfg.ReceiveEndpoint(queueName, r =>
+            {
+                r.ConfigureConsumer<MessageConsume>(context);
+            });
+        });
+    }
+    else
+    {
+        throw new BadHttpRequestException("RabbitMQ Setting Error.");
+    }
+});
+
+// Add CORS
+builder.Services.AddCors(options => {
+    options.AddPolicy("cors", builder => {
+        builder.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();

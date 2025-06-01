@@ -10,6 +10,15 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="DataProtectedUnitTest.cs" />
+    <Compile Remove="ErrorExceptionUnitTest.cs" />
+    <Compile Remove="PasswordHashUnitTest.cs" />
+    <Compile Remove="TokenServiceUnitTest.cs" />
+    <Compile Remove="TokenUnitTest.cs" />
+    <Compile Remove="UserServiceUnitTest.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
