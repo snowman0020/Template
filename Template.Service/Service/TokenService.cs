@@ -249,9 +249,9 @@ namespace Template.Service.Services
 
             try
             {
-                _logger.LogDebug($"User logout: {email}");
+                _logger.LogDebug($"data: {email}");
 
-                var modelToken = await _db.Tokens.Where(t => t.Email == email).AsNoTracking().FirstOrDefaultAsync();
+                var modelToken = await _db.Tokens.Where(t => t.Email == email).AsNoTracking().OrderByDescending(t => t.CreatedDate).FirstOrDefaultAsync();
 
                 if (modelToken == null)
                 {

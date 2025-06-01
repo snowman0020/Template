@@ -66,6 +66,7 @@ namespace Template.Domain.DTO
         public void AddToModel(Tokens model, int expiryMinutes)
         {
             model.Token = Token;
+            model.Expires = expiryMinutes;
             model.RefreshToken = RefreshToken;
             model.Email = Email;
             model.ExpiredDate = DateTime.Now.AddMinutes(expiryMinutes);
