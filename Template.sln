@@ -15,6 +15,14 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Helper", "Template
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest", "Template.UnitTest\Template.UnitTest.csproj", "{3C271587-CA75-4F25-BA90-014A23BF809A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.SQLite", "Template.Infrastructure.SQLite\Template.Infrastructure.SQLite.csproj", "{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.Oracle", "Template.Infrastructure.Oracle\Template.Infrastructure.Oracle.csproj", "{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.MySQL", "Template.Infrastructure.MySQL\Template.Infrastructure.MySQL.csproj", "{63CBE2E1-61E2-4703-BA16-C148659C6ACC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.PostgreSQL", "Template.Infrastructure.PostgreSQL\Template.Infrastructure.PostgreSQL.csproj", "{79DE3E46-FD36-4303-9F1F-00657DE62D97}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +53,22 @@ Global
 		{3C271587-CA75-4F25-BA90-014A23BF809A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C271587-CA75-4F25-BA90-014A23BF809A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C271587-CA75-4F25-BA90-014A23BF809A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63CBE2E1-61E2-4703-BA16-C148659C6ACC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63CBE2E1-61E2-4703-BA16-C148659C6ACC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63CBE2E1-61E2-4703-BA16-C148659C6ACC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63CBE2E1-61E2-4703-BA16-C148659C6ACC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{79DE3E46-FD36-4303-9F1F-00657DE62D97}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{79DE3E46-FD36-4303-9F1F-00657DE62D97}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{79DE3E46-FD36-4303-9F1F-00657DE62D97}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{79DE3E46-FD36-4303-9F1F-00657DE62D97}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
