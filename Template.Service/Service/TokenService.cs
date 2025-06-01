@@ -32,14 +32,15 @@ namespace Template.Service.Services
 
         public async Task<LoginDTO> LoginAsync(LoginRequest input)
         {
-            var result = new LoginDTO();
+            _logger.LogInformation($"call: LoginAsync");
 
-            _logger.LogInformation($"call: LoginAsync: {JsonSerializer.Serialize(input)}");
+            var result = new LoginDTO();
 
             using (var transaction = _db.Database.BeginTransaction())
             {
                 try
                 {
+                    //_logger.LogDebug($"User login: {JsonSerializer.Serialize(input)}");
 
                     string issuer = _jwtData.Issuer ?? "";
                     int expiryMinutes = _jwtData.ExpMinutes ?? 15;
@@ -191,14 +192,16 @@ namespace Template.Service.Services
 
         public async Task LogoutAsync(LogoutRequest input)
         {
-            var result = new UserDTO();
+            _logger.LogInformation($"call: LogoutAsync");
 
-            _logger.LogInformation($"call: LogoutAsync: {JsonSerializer.Serialize(input)}");
+            var result = new UserDTO();
 
             using (var transaction = _db.Database.BeginTransaction())
             {
                 try
                 {
+                    _logger.LogDebug($"User logout: {JsonSerializer.Serialize(input)}");
+
                     var modelToken = await _db.Tokens.Where(t => t.RefreshToken == input.RefreshToken).FirstOrDefaultAsync();
 
                     if (modelToken == null)
@@ -240,11 +243,13 @@ namespace Template.Service.Services
 
         private async Task<LoginDTO> GetTokenByEmailAsync(string email)
         {
+            _logger.LogInformation($"call: GetTokenByEmailAsync");
+
             var result = new LoginDTO();
 
             try
             {
-                _logger.LogInformation($"call: GetTokenByEmailAsync: {email}");
+                _logger.LogDebug($"User logout: {email}");
 
                 var modelToken = await _db.Tokens.Where(t => t.Email == email).AsNoTracking().FirstOrDefaultAsync();
 

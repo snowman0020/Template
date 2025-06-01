@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Text.Json;
+using Template.Domain.AppSetting;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
 using Template.Domain.Paging;
 using Template.Domain.SortBy;
 using Template.Helper.ErrorException;
+using Template.Helper.MessagePublish;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
@@ -18,19 +21,25 @@ namespace Template.Service.Services
         private readonly TemplateDbContext _db;
         private readonly ILogger<UserService> _logger;
         private readonly IPasswordHash _passwordHash;
+        private readonly IMessagePublish _messagePublish;
+        private readonly RabbitMQData _rabbitMQData;
 
-        public UserService(TemplateDbContext db, ILogger<UserService> logger, IPasswordHash passwordHash)
+        public UserService(TemplateDbContext db, ILogger<UserService> logger, IPasswordHash passwordHash, IMessagePublish messagePublish, IOptions<RabbitMQData> rabbitMQData)
         {
             _db = db;
             _logger = logger;
             _passwordHash = passwordHash;
+            _messagePublish = messagePublish;
+            _rabbitMQData = rabbitMQData.Value;
         }
 
         public async Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy)
         {
+            _logger.LogInformation($"call: GetUserListAsync");
+
             try
             {
-                _logger.LogInformation($"call: GetUserListAsync: filter: {JsonSerializer.Serialize(filter)}, pageParam: {JsonSerializer.Serialize(pageParam)}, sortBy: {JsonSerializer.Serialize(sortBy)}");
+                _logger.LogDebug($"filter: {JsonSerializer.Serialize(filter)}, pageParam: {JsonSerializer.Serialize(pageParam)}, sortBy: {JsonSerializer.Serialize(sortBy)}");
 
                 var queryUser = _db.Users.AsNoTracking();
 
@@ -141,11 +150,13 @@ namespace Template.Service.Services
 
         public async Task<UserDTO> GetUserByIdAsync(string Id)
         {
+            _logger.LogInformation($"call: GetUserByIdAsync");
+
             var result = new UserDTO();
 
             try
             {
-                _logger.LogInformation($"call: GetUserByIdAsync: {Id}");
+                _logger.LogDebug($"User id: {Id}");
 
                 var modelUser = await _db.Users.Where(u => u.ID == Id && u.IsDeleted == false).AsNoTracking().FirstOrDefaultAsync();
 
@@ -195,11 +206,13 @@ namespace Template.Service.Services
             return result;
         }
 
-        public async Task<UserDTO> AddUserAsync(UserRequest input)
+        public async Task<UserDTO> AddUserAsync(UserRequest input, string userAddId)
         {
+            _logger.LogInformation($"call: AddUserAsync");
+
             var result = new UserDTO();
 
-            _logger.LogInformation($"call: AddUserAsync: {JsonSerializer.Serialize(input)}");
+            _logger.LogDebug($"User add: {JsonSerializer.Serialize(input)}, Created by: {userAddId}");
 
             var modelUser = await _db.Users.Where(u => u.FirstName == input.FirstName && u.LastName == input.LastName).AsNoTracking().FirstOrDefaultAsync();
 
@@ -224,6 +237,8 @@ namespace Template.Service.Services
                     {
                         user.Password = _passwordHash.Encrypt(input.Password);
                     }
+
+                    user.CreatedBy = userAddId;
 
                     await _db.Users.AddAsync(user);
                     await _db.SaveChangesAsync();
@@ -261,11 +276,13 @@ namespace Template.Service.Services
             return result;
         }
 
-        public async Task<UserDTO> UpdateUserAsync(string Id, UserRequest input)
+        public async Task<UserDTO> UpdateUserAsync(string Id, UserRequest input, string userUpdateId)
         {
+            _logger.LogInformation($"call: UpdateUserAsync");
+
             var result = new UserDTO();
 
-            _logger.LogInformation($"call: UpdateUserAsync: {Id}, {JsonSerializer.Serialize(input)}");
+            _logger.LogDebug($"User update: {JsonSerializer.Serialize(input)}, Updated by: {userUpdateId}");
 
             if (string.IsNullOrEmpty(Id))
             {
@@ -329,6 +346,8 @@ namespace Template.Service.Services
                         modelUser.Password = _passwordHash.Encrypt(input.Password);
                     }
 
+                    modelUser.UpdatedBy = userUpdateId;
+
                     _db.Users.Update(modelUser);
                     await _db.SaveChangesAsync();
 
@@ -363,9 +382,11 @@ namespace Template.Service.Services
             return result;
         }
 
-        public async Task DeleteUserAsync(string Id)
+        public async Task DeleteUserAsync(string Id, string userDeleteId)
         {
-            _logger.LogInformation($"call: DeleteUserAsync: {Id}");
+            _logger.LogInformation($"call: DeleteUserAsync");
+
+            _logger.LogDebug($"User delete: {Id}, Deleted by: {userDeleteId}");
 
             var model = await _db.Users.Where(m => m.ID == Id && m.IsDeleted == false).FirstOrDefaultAsync();
 
@@ -386,10 +407,32 @@ namespace Template.Service.Services
 
                     input.DeleteToModel(model);
 
+                    model.DeletedBy = userDeleteId;
+
                     _db.Users.Update(model);
                     await _db.SaveChangesAsync();
 
                     transaction.Commit();
+
+                    //SEND TO MESSAGE QUEUE IF DELETE FUNCTION
+                    var message = new MessageDTO();
+                    message.UserID = Id;
+                    message.Topic = "Has Deleted.";
+                    message.Detail = $"Id {userDeleteId} has deleted user id {Id}.";
+
+                    var modelMessage = new Messages();
+
+                    message.AddToModel(modelMessage);
+
+                    _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(modelMessage)}");
+
+                    var messageNew = MessageDTO.CreateFromModel(modelMessage);
+
+                    _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(messageNew)}");
+
+                    string queueName = _rabbitMQData.QueueName ?? "";
+
+                    await _messagePublish.MessagePublishAsync(messageNew, queueName);
                 }
                 catch (ErrorException)
                 {

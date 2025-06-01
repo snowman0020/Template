@@ -9,8 +9,8 @@ namespace Template.Service.IServices
     {
         Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy);
         Task<UserDTO> GetUserByIdAsync(string Id);
-        Task<UserDTO> AddUserAsync(UserRequest input);
-        Task<UserDTO> UpdateUserAsync(string Id, UserRequest input);
-        Task DeleteUserAsync(string Id);
+        Task<UserDTO> AddUserAsync(UserRequest input, string userAddId);
+        Task<UserDTO> UpdateUserAsync(string Id, UserRequest input, string userUpdateId);
+        Task DeleteUserAsync(string Id, string userDeleteId);
     }
 }

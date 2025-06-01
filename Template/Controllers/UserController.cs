@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
+using System.Security.Claims;
 using System.Text.Json;
 using Template.Domain.DTO;
 using Template.Domain.Filter;
@@ -18,18 +19,27 @@ namespace Template.Controllers
     {
         private readonly IUserService _userService;
         private readonly IErrorExceptionHandler _errorExceptionHandler;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public UserController(IUserService userService, IErrorExceptionHandler errorExceptionHandler)
+        private List<Claim> _userClaimsList = new List<Claim>();
+
+        public UserController(IUserService userService, IErrorExceptionHandler errorExceptionHandler, IHttpContextAccessor httpContextAccessor)
         {
             _userService = userService;
             _errorExceptionHandler = errorExceptionHandler;
+            _httpContextAccessor = httpContextAccessor;
+
+            if (_httpContextAccessor.HttpContext != null)
+            {
+                _userClaimsList = _httpContextAccessor.HttpContext.User.Claims.ToList();
+            }
         }
 
         /// <summary>
         /// Get user list
         /// </summary>
         /// <param name="filter"></param>
-        /// <param name="pageParam"></param>
+        /// <param name="pageParam"></param>s
         /// <param name="sortBy"></param>
         /// <returns>User List and paging</returns>
         /// <response code="200">Returns 200 if success</response>
@@ -80,12 +90,10 @@ namespace Template.Controllers
         {
             try
             {
-                var userClaimsList = HttpContext.User.Claims.ToList();
-
-                var userId = userClaimsList[0].Value;
+                var userId = _userClaimsList[0].Value;
 
                 var result = await _userService.GetUserByIdAsync(userId);
-                return Ok();
+                return Ok(result);
             }
             catch (Exception ex)
             {
@@ -132,7 +140,9 @@ namespace Template.Controllers
         {
             try
             {
-                var result = await _userService.AddUserAsync(input);
+                var userAddId = _userClaimsList[0].Value;
+
+                var result = await _userService.AddUserAsync(input, userAddId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -157,7 +167,9 @@ namespace Template.Controllers
         {
             try
             {
-                var result = await _userService.UpdateUserAsync(id, input);
+                var userUpdateId = _userClaimsList[0].Value;
+
+                var result = await _userService.UpdateUserAsync(id, input, userUpdateId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -180,7 +192,9 @@ namespace Template.Controllers
         {
             try
             {
-                await _userService.DeleteUserAsync(id);
+                var userDeleteId = _userClaimsList[0].Value;
+
+                await _userService.DeleteUserAsync(id, userDeleteId);
                 return Ok();
             }
             catch (Exception ex)
