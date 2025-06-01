@@ -15,6 +15,7 @@ namespace Template.Infrastructure
         // Registered DB Model in TemplateDbContext file
         public DbSet<Users> Users { get; set; }
         public DbSet<Tokens> Tokens { get; set; }
+        public DbSet<Messages> Messages { get; set; }
 
         /*
           OnModelCreating mainly used to configured our EF model
@@ -22,7 +23,7 @@ namespace Template.Infrastructure
          */
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //Table User
+            //Table Users
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
@@ -31,12 +32,19 @@ namespace Template.Infrastructure
 
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
 
-            //Table Token
+            //Table Tokens
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");
+
+            //Table Messages
+            modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
+            modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.Entity<Messages>().Property(m => m.IsDeleted).HasDefaultValue(false);
+            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Messages>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             //// Inserting record in User table
             //var user = new Users()
