@@ -1,4 +1,6 @@
-﻿using MassTransit;
+﻿using Hangfire;
+using Hangfire.Redis.StackExchange;
+using MassTransit;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +13,7 @@ using Template.Helper.ErrorException;
 using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
 using Template.Helper.PasswordHash;
+using Template.Helper.Redis;
 using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Service.IServices;
@@ -30,6 +33,8 @@ namespace Template.UnitTest
             services.Configure<JWTData>(_configuration.GetSection("JWT"));
             services.Configure<CustomSettingData>(_configuration.GetSection("CustomSetting"));
             services.Configure<RabbitMQData>(_configuration.GetSection("RabbitMQ"));
+            services.Configure<RedisData>(_configuration.GetSection("Redis"));
+            services.Configure<HangfireData>(_configuration.GetSection("Hangfire"));
 
             //Add DbContext
             services.AddDbContext<TemplateDbContext>(options =>
@@ -88,6 +93,50 @@ namespace Template.UnitTest
                 }
             });
 
+            //Add Redis
+            services.AddStackExchangeRedisCache(options =>
+            {
+                var redisData = services.BuildServiceProvider().GetRequiredService<IOptions<RedisData>>().Value;
+
+                if (redisData != null)
+                {
+                    string cacheName = redisData.CacheName ?? "";
+                    string instanceName = redisData.InstanceName ?? "";
+
+                    options.Configuration = cacheName;
+                    options.InstanceName = instanceName;
+                }
+                else
+                {
+                    throw new BadHttpRequestException("Redis Setting Error.");
+                }
+            });
+
+            //Add Hangfire
+            services.AddHangfire(config =>
+            {
+                var hangfireData = services.BuildServiceProvider().GetRequiredService<IOptions<HangfireData>>().Value;
+
+                if (hangfireData != null)
+                {
+                    string username = hangfireData.Username ?? "";
+                    string password = hangfireData.Password ?? "";
+                    string dashboardPath = hangfireData.DashboardPath ?? "";
+                    string redisConnectionString = hangfireData.RedisConnectionString ?? "";
+
+                    RedisStorageOptions options = new RedisStorageOptions
+                    {
+                        Prefix = dashboardPath
+                    };
+
+                    config.UseRedisStorage(redisConnectionString, options);
+                }
+                else
+                {
+                    throw new BadHttpRequestException("Hangfire Setting Error.");
+                }
+            });
+
             //Add Service
             services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
             services.AddScoped<IDataProtected, DataProtected>();
@@ -95,6 +144,7 @@ namespace Template.UnitTest
             services.AddScoped<IToken, Token>();
             services.AddScoped<IMessagePublish, MessagePublish>();
             services.AddScoped<IMessageConsume, MessageConsume>();
+            services.AddScoped<ICache, Cache>();
 
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<ITokenService, TokenService>();
