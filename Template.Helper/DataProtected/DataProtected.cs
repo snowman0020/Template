@@ -31,6 +31,8 @@ namespace Template.Helper.DataProtected
 
             var sensitiveData = _dataProtector.Unprotect(protectedData);
 
+            //_logger.LogDebug($"data: {sensitiveData}");
+
             return sensitiveData;
         }
     }

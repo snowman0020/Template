@@ -41,7 +41,7 @@ namespace Template.UnitTest
                 Password = "1234"
             };
 
-            var userAdd = await _userService.AddUserAsync(userRequestAdd);
+            var userAdd = await _userService.AddUserAsync(userRequestAdd, "System_Unit_Test");
 
             Assert.NotNull(userAdd);
             Assert.NotNull(userAdd.Id);
@@ -76,7 +76,7 @@ namespace Template.UnitTest
             try
             {
                 await _tokenService.LogoutAsync(logtoutRequest);
-                await _userService.DeleteUserAsync(userId);
+                await _userService.DeleteUserAsync(userId, "System_Unit_Test");
 
                 isDelete = true;
             }
@@ -107,7 +107,7 @@ namespace Template.UnitTest
                 Password = "1234"
             };
 
-            var userAdd = await _userService.AddUserAsync(userRequestAdd);
+            var userAdd = await _userService.AddUserAsync(userRequestAdd, "System_Unit_Test");
 
             Assert.NotNull(userAdd);
             Assert.NotNull(userAdd.Id);
@@ -160,7 +160,7 @@ namespace Template.UnitTest
             try
             {
                 await _tokenService.LogoutAsync(logtoutRequest);
-                await _userService.DeleteUserAsync(userId);
+                await _userService.DeleteUserAsync(userId, "System_Unit_Test");
 
                 isDelete = true;
             }

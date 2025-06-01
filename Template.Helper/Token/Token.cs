@@ -19,9 +19,11 @@ namespace Template.Helper.Token
 
         public LoginDTO CreateNewToken(string userId, string email, string issuer, int expMinutes, string key)
         {
-            _logger.LogInformation($"call: CreateNewToken: userId: {userId}, email: {email}, issuer: {issuer}, expiryMinutes: {expMinutes}, key: {key}");
+            _logger.LogInformation($"call: CreateNewToken");
 
             var result = new LoginDTO();
+
+            _logger.LogDebug($"userId: {userId}, email: {email}, issuer: {issuer}, expiryMinutes: {expMinutes}, key: {key}");
 
             var refreshToken = Guid.NewGuid().ToString("N");
 

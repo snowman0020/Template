@@ -42,7 +42,7 @@ namespace Template.UnitTest
                 Password = "1234"
             };
 
-            var userAdd = await _userService.AddUserAsync(userRequestAdd);
+            var userAdd = await _userService.AddUserAsync(userRequestAdd, "System_Unit_Test");
 
             Assert.NotNull(userAdd);
             Assert.NotNull(userAdd.Id);
@@ -59,7 +59,7 @@ namespace Template.UnitTest
                 Password = "1234"
             };
 
-            var userAdd02 = await _userService.AddUserAsync(userRequestAdd02);
+            var userAdd02 = await _userService.AddUserAsync(userRequestAdd02, "System_Unit_Test");
 
             Assert.NotNull(userAdd02);
             Assert.NotNull(userAdd02.Id);
@@ -101,7 +101,7 @@ namespace Template.UnitTest
                 Email = "testFirstName@email.com",
             };
 
-            var userUpdate = await _userService.UpdateUserAsync(userId, userRequestUpdate);
+            var userUpdate = await _userService.UpdateUserAsync(userId, userRequestUpdate, "System_Unit_Test");
 
             Assert.NotNull(userUpdate);
             Assert.NotNull(userUpdate.Id);
@@ -118,8 +118,8 @@ namespace Template.UnitTest
 
             try
             {
-                await _userService.DeleteUserAsync(userId);
-                await _userService.DeleteUserAsync(userId02);
+                await _userService.DeleteUserAsync(userId, "System_Unit_Test");
+                await _userService.DeleteUserAsync(userId02, "System_Unit_Test");
 
                 isDelete = true;
             }

@@ -29,6 +29,8 @@ namespace Template.Helper.PasswordHash
 
             bool isVerify = Argon2.Verify(passwordHash, password);
 
+            _logger.LogDebug($"data: {isVerify}");
+
             return isVerify;
         }
     }
