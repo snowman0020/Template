@@ -6,5 +6,6 @@ namespace Template.Service.IServices
     {
         Task<LoginDTO> LoginAsync(LoginRequest input);
         Task LogoutAsync(LogoutRequest input);
+        Task<LoginCacheDTO> CheckDataInCacheAsync(LoginRequest input);
     }
 }

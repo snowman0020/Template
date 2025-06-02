@@ -1,21 +1,13 @@
-using Hangfire;
-using Hangfire.Dashboard;
-using Hangfire.Dashboard.BasicAuthorization;
-using Hangfire.Redis.StackExchange;
 using MassTransit;
-using MassTransit.Caching;
-using MassTransit.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
-using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
 using Template.Domain.AppSetting;
-using Template.Helper.BackgroundWorkJob;
 using Template.Helper.DataCache;
 using Template.Helper.DataProtected;
 using Template.Helper.ErrorException;
@@ -30,46 +22,92 @@ using Template.Service.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var contentRootPath = builder.Environment.ContentRootPath;
+
 builder.Configuration.AddJsonFile("appsettings.json", false, true);
 
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
 
-//Add support to logging with SERILOG
-builder.Host.UseSerilog((context, loggerConfiguration) =>
-{
-    //loggerConfiguration.WriteTo.Console();
-    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
-});
-
 //Mapping appsetting.json to class
-builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
-builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
-builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
+builder.Services.Configure<HangfireData>(builder.Configuration.GetSection("Hangfire"));
+builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
+builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
 builder.Services.Configure<RabbitMQData>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.Configure<RedisData>(builder.Configuration.GetSection("Redis"));
-builder.Services.Configure<HangfireData>(builder.Configuration.GetSection("Hangfire"));
+builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
+
+//Add Service
+//builder.Services.AddScoped<IBackgroundWorkJob, BackgroundWorkJob>();
+builder.Services.AddScoped<IDataCache, DataCache>();
+builder.Services.AddScoped<IDataProtected, DataProtected>();
+builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
+builder.Services.AddScoped<IMessageConsume, MessageConsume>();
+builder.Services.AddScoped<IMessagePublish, MessagePublish>();
+builder.Services.AddScoped<IPasswordHash, PasswordHash>();
+builder.Services.AddScoped<IToken, Token>();
+
+builder.Services.AddScoped<IMessageService, MessageService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<IUserService, UserService>();
+
+builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
+
+//Add CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("CorsPolicy", po =>
+    {
+        po.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+    });
+});
+
+//Add DataProtection 
+var dataProtectionPath = Path.Combine(contentRootPath, "dataProtectedInformation");
+builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+
+//Add DbContext
+builder.Services.AddDbContext<TemplateDbContext>(options =>
+{
+    string dbConnectionServer = "";
+
+    var customSettingData = builder.Configuration.GetSection("CustomSetting").Get<CustomSettingData>();
+
+    if (customSettingData != null)
+    {
+        dbConnectionServer = customSettingData.ConnectionServer ?? "";
+    }
+    else
+    {
+        throw new BadHttpRequestException("custom Setting Error.");
+    }
+
+    options.UseSqlServer(dbConnectionServer, s =>
+    {
+        s.MigrationsAssembly("Template.Infrastructure");
+    });
+});
 
 //Add JWT
-string jwtIssuer = "";
-string jwtKey = "";
-
-var jwtData = builder.Configuration.GetSection("JWT").Get<JWTData>();
-
-if (jwtData != null)
-{
-    jwtIssuer = jwtData.Issuer ?? "";
-    jwtKey = jwtData.Key ?? "";
-}
-else
-{
-    throw new BadHttpRequestException("Jwt Setting Error.");
-}
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
     {
+        string jwtIssuer = "";
+        string jwtKey = "";
+
+        var jwtData = builder.Configuration.GetSection("JWT").Get<JWTData>();
+
+        if (jwtData != null)
+        {
+            jwtIssuer = jwtData.Issuer ?? "";
+            jwtKey = jwtData.Key ?? "";
+        }
+        else
+        {
+            throw new BadHttpRequestException("Jwt Setting Error.");
+        }
+
         options.RequireHttpsMetadata = false;
 
         options.SaveToken = true;
@@ -83,34 +121,74 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
-//Add DataProtection 
-var contentRootPath = builder.Environment.ContentRootPath;
+//Add RabbitMQ
+builder.Services.AddMassTransit(options =>
+{
+    string rabbitHostName = "";
+    string rabbitUsername = "";
+    string rabbitPassword = "";
+    string rabbitQueueName = "";
 
-var dataProtectionPath = Path.Combine(contentRootPath, "dataProtectedInformation");
+    var rabbitMQData = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQData>();
 
-builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+    if (rabbitMQData != null)
+    {
+        rabbitHostName = rabbitMQData.HostName ?? "";
+        rabbitUsername = rabbitMQData.UserName ?? "";
+        rabbitPassword = rabbitMQData.Password ?? "";
+        rabbitQueueName = rabbitMQData.QueueName ?? "";
+    }
+    else
+    {
+        throw new BadHttpRequestException("RabbitMQ Setting Error.");
+    }
 
-//Add Service
-builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
-builder.Services.AddScoped<IDataProtected, DataProtected>();
-builder.Services.AddScoped<IPasswordHash, PasswordHash>();
-builder.Services.AddScoped<IToken, Token>();
-builder.Services.AddScoped<IMessagePublish, MessagePublish>();
-builder.Services.AddScoped<IMessageConsume, MessageConsume>();
-builder.Services.AddScoped<IDataCache, DataCache>();
-builder.Services.AddScoped<IBackgroundWorkJob, BackgroundWorkJob>();
+    options.AddConsumer<MessageConsume>();
+    options.UsingRabbitMq((context, cfg) =>
+    {
+        cfg.Host(rabbitHostName, "/", h =>
+        {
+            h.Username(rabbitUsername);
+            h.Password(rabbitPassword);
+        });
+        cfg.ReceiveEndpoint(rabbitQueueName, r =>
+        {
+            r.ConfigureConsumer<MessageConsume>(context);
+        });
+    });
+});
 
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ITokenService, TokenService>();
-builder.Services.AddScoped<IMessageService, MessageService>();
+//Add Redis
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    string redisInstanceName = "";
+    string redisConfigurationServer = "";
 
-builder.Services.AddControllersWithViews();
-builder.Services.AddHttpContextAccessor();
+    var redisData = builder.Configuration.GetSection("Redis").Get<RedisData>();
+    if (redisData != null)
+    {
+        redisInstanceName = redisData.InstanceName ?? "";
+        redisConfigurationServer = redisData.ConnectionServer ?? "";
+    }
+    else
+    {
+        throw new BadHttpRequestException("Redis Setting Error.");
+    }
+
+    options.InstanceName = redisInstanceName;
+    options.Configuration = redisConfigurationServer;
+});
+
+//Add SERILOG
+builder.Host.UseSerilog((context, loggerConfiguration) =>
+{
+    //loggerConfiguration.WriteTo.Console();
+    loggerConfiguration.ReadFrom.Configuration(context.Configuration);
+});
 
 //Add Swagger
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(options =>
 {
     var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
@@ -131,129 +209,39 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<OperationFilter>();
 });
 
-//Add DbContext
-string dbConnectionString = "";
+////Add Hangfire
+//string hangfireUsername = "";
+//string hangfirePassword = "";
+//string hangfireDashboardPath = "";
 
-var customSettingData = builder.Configuration.GetSection("CustomSetting").Get<CustomSettingData>();
+//string prefixName = "";
+//string redisConnectionString = "";
 
-if (customSettingData != null)
-{
-    dbConnectionString = customSettingData.DbConnectionString ?? "";
-}
-else
-{
-    throw new BadHttpRequestException("custom Setting Error.");
-}
+//var hangfireData = builder.Configuration.GetSection("Hangfire").Get<HangfireData>();
 
-builder.Services.AddDbContext<TemplateDbContext>(options =>
-{
-    options.UseSqlServer(dbConnectionString, s =>
-    {
-        s.MigrationsAssembly("Template.Infrastructure");
-    });
-});
+//if (hangfireData != null)
+//{
+//    hangfireUsername = hangfireData.Username ?? "";
+//    hangfirePassword = hangfireData.Password ?? "";
+//    hangfireDashboardPath = hangfireData.DashboardPath ?? "";
 
-//Add RabbitMQ
-string rabbitHostName = "";
-string rabbitUsername = "";
-string rabbitPassword = "";
-string rabbitQueueName = "";
+//    prefixName = hangfireData.PrefixName ?? "";
+//    redisConnectionString = hangfireData.RedisConnectionString ?? "";
+//}
+//else
+//{
+//    throw new BadHttpRequestException("Hangfire Setting Error.");
+//}
 
-var rabbitMQData = builder.Configuration.GetSection("RabbitMQ").Get<RabbitMQData>();
+//var redis = ConnectionMultiplexer.Connect(redisConnectionString);
 
-if (rabbitMQData != null)
-{
-    rabbitHostName = rabbitMQData.HostName ?? "";
-    rabbitUsername = rabbitMQData.UserName ?? "";
-    rabbitPassword = rabbitMQData.Password ?? "";
-    rabbitQueueName = rabbitMQData.QueueName ?? "";
-}
-else
-{
-    throw new BadHttpRequestException("RabbitMQ Setting Error.");
-}
+//builder.Services.AddHangfire(config =>
+//{
+//    config.UseRedisStorage(redis);
+//});
 
-builder.Services.AddMassTransit(options =>
-{
-options.AddConsumer<MessageConsume>();
-options.UsingRabbitMq((context, cfg) =>
-{
-    cfg.Host(rabbitHostName, "/", h =>
-    {
-        h.Username(rabbitUsername);
-        h.Password(rabbitPassword);
-    });
-    cfg.ReceiveEndpoint(rabbitQueueName, r =>
-    {
-        r.ConfigureConsumer<MessageConsume>(context);
-    });
-});
-});
-
-//Add CORS
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy("CorsPolicy", po =>
-    {
-        po.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
-    });
-});
-
-//Add Redis
-string redisCacheName = "";
-string redisInstanceName = "";
-
-var redisData = builder.Configuration.GetSection("Redis").Get<RedisData>();
-if (redisData != null)
-{
-    redisCacheName = redisData.CacheName ?? "";
-    redisInstanceName = redisData.InstanceName ?? "";
-}
-else
-{
-    throw new BadHttpRequestException("Redis Setting Error.");
-}
-
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    options.Configuration = redisCacheName;
-    options.InstanceName = redisInstanceName;
-});
-
-//Add Hangfire
-string hangfireUsername = "";
-string hangfirePassword = "";
-string hangfireDashboardPath = "";
-
-string prefixName = "";
-string redisConnectionString = "";
-
-var hangfireData = builder.Configuration.GetSection("Hangfire").Get<HangfireData>();
-
-if (hangfireData != null)
-{
-    hangfireUsername = hangfireData.Username ?? "";
-    hangfirePassword = hangfireData.Password ?? "";
-    hangfireDashboardPath = hangfireData.DashboardPath ?? "";
-
-    prefixName = hangfireData.PrefixName ?? "";
-    redisConnectionString = hangfireData.RedisConnectionString ?? "";
-}
-else
-{
-    throw new BadHttpRequestException("Hangfire Setting Error.");
-}
-
-var redis = ConnectionMultiplexer.Connect(redisConnectionString);
-
-builder.Services.AddHangfire(config =>
-{
-
-    config.UseRedisStorage(redis);
-});
-
-builder.Services.AddHangfireServer();
-//builder.Services.AddHostedService<TestService>;
+//builder.Services.AddHangfireServer();
+////builder.Services.AddHostedService<TestService>;
 
 var app = builder.Build();
 
@@ -265,38 +253,37 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseCors("CorsPolicy");
+app.UseHttpsRedirection();
+app.UseAuthorization();
+app.MapControllers();
+
 ////Add support to logging request with SERILOG
 //app.UseSerilogRequestLogging();
 
-app.UseCors("CorsPolicy");
-
-app.UseHttpsRedirection();
-
-//Use Hangfire
-var options = new DashboardOptions
-{
-    Authorization = new[] { new BasicAuthAuthorizationFilter(
-                           new BasicAuthAuthorizationFilterOptions
-                            {
-                               SslRedirect = false,
-                               RequireSsl = false,
-                               LoginCaseSensitive = true,
-                               Users = new []
-                               {
-                                    new BasicAuthAuthorizationUser()
-                                    {
-                                        Login = hangfireUsername,
-                                        PasswordClear = hangfirePassword
-                                    }
-                               }
-                            })
-                         }
-};
-
-app.UseHangfireDashboard("/hangfire");
-
-app.UseAuthorization();
-
-app.MapControllers();
-
 app.Run();
+
+
+
+////Use Hangfire
+//var options = new DashboardOptions
+//{
+//    Authorization = new[] { new BasicAuthAuthorizationFilter(
+//                           new BasicAuthAuthorizationFilterOptions
+//                            {
+//                               SslRedirect = false,
+//                               RequireSsl = false,
+//                               LoginCaseSensitive = true,
+//                               Users = new []
+//                               {
+//                                    new BasicAuthAuthorizationUser()
+//                                    {
+//                                        Login = hangfireUsername,
+//                                        PasswordClear = hangfirePassword
+//                                    }
+//                               }
+//                            })
+//                         }
+//};
+
+//app.UseHangfireDashboard("/hangfire");

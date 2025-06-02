@@ -9,6 +9,13 @@ namespace Template.Domain.DTO
         public string? RefreshToken { get; set; }
     }
 
+    public class LoginCacheDTO : LoginDTO
+    {
+        public string? Id { get; set; }
+        public DateTime? ExpiredDate { get; set; }
+        public bool isHave { get; set; }    
+    }
+
     public class LoginRequest : LoginDTO
     {
         [EditorBrowsable(EditorBrowsableState.Never)]

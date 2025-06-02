@@ -1,6 +1,4 @@
-﻿using Hangfire;
-using Hangfire.Redis.StackExchange;
-using MassTransit;
+﻿using MassTransit;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
@@ -8,12 +6,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Template.Domain.AppSetting;
+using Template.Helper.DataCache;
 using Template.Helper.DataProtected;
 using Template.Helper.ErrorException;
 using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
 using Template.Helper.PasswordHash;
-using Template.Helper.Redis;
 using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Service.IServices;
@@ -36,6 +34,23 @@ namespace Template.UnitTest
             services.Configure<RedisData>(_configuration.GetSection("Redis"));
             services.Configure<HangfireData>(_configuration.GetSection("Hangfire"));
 
+            //Add Service
+            services.AddScoped<IDataCache, DataCache>();
+            services.AddScoped<IDataProtected, DataProtected>();
+            services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
+            services.AddScoped<IMessageConsume, MessageConsume>();
+            services.AddScoped<IMessagePublish, MessagePublish>();
+            services.AddScoped<IPasswordHash, PasswordHash>();
+            services.AddScoped<IToken, Token>();
+
+            services.AddScoped<IMessageService, MessageService>();
+            services.AddScoped<ITokenService, TokenService>();
+            services.AddScoped<IUserService, UserService>();
+
+            //Add DataProtection 
+            var dataProtectionPath = Path.Combine(baseDirectory, "dataProtectedInformation");
+            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+
             //Add DbContext
             services.AddDbContext<TemplateDbContext>(options =>
             {
@@ -43,9 +58,9 @@ namespace Template.UnitTest
 
                 if (customSettingData != null)
                 {
-                    var dbConnectionStringData = customSettingData.DbConnectionString ?? "";
+                    var dbConnectionServer = customSettingData.ConnectionServer ?? "";
 
-                    options.UseSqlServer(dbConnectionStringData, s =>
+                    options.UseSqlServer(dbConnectionServer, s =>
                     {
                         s.MigrationsAssembly("Template.Infrastructure");
                     });
@@ -56,10 +71,24 @@ namespace Template.UnitTest
                 }
             });
 
-            //Add DataProtection 
-            var dataProtectionPath = Path.Combine(baseDirectory, "dataProtectedInformation");
+            //Add Redis
+            services.AddStackExchangeRedisCache(options =>
+            {
+                var redisData = services.BuildServiceProvider().GetRequiredService<IOptions<RedisData>>().Value;
 
-            services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
+                if (redisData != null)
+                {
+                    string redisInstanceName = redisData.InstanceName ?? "";
+                    string redisConfigurationServer = redisData.ConnectionServer ?? "";
+
+                    options.InstanceName = redisInstanceName;
+                    options.Configuration = redisConfigurationServer;
+                }
+                else
+                {
+                    throw new BadHttpRequestException("Redis Setting Error.");
+                }
+            });
 
             //Add RabbitMQ
             services.AddMassTransit(options =>
@@ -93,62 +122,30 @@ namespace Template.UnitTest
                 }
             });
 
-            //Add Redis
-            services.AddStackExchangeRedisCache(options =>
-            {
-                var redisData = services.BuildServiceProvider().GetRequiredService<IOptions<RedisData>>().Value;
+            ////Add Hangfire
+            //services.AddHangfire(config =>
+            //{
+            //    var hangfireData = services.BuildServiceProvider().GetRequiredService<IOptions<HangfireData>>().Value;
 
-                if (redisData != null)
-                {
-                    string cacheName = redisData.CacheName ?? "";
-                    string instanceName = redisData.InstanceName ?? "";
+            //    if (hangfireData != null)
+            //    {
+            //        string username = hangfireData.Username ?? "";
+            //        string password = hangfireData.Password ?? "";
+            //        string dashboardPath = hangfireData.DashboardPath ?? "";
+            //        string redisConnectionServer = hangfireData.RedisConnectionServer ?? "";
 
-                    options.Configuration = cacheName;
-                    options.InstanceName = instanceName;
-                }
-                else
-                {
-                    throw new BadHttpRequestException("Redis Setting Error.");
-                }
-            });
+            //        RedisStorageOptions options = new RedisStorageOptions
+            //        {
+            //            Prefix = dashboardPath
+            //        };
 
-            //Add Hangfire
-            services.AddHangfire(config =>
-            {
-                var hangfireData = services.BuildServiceProvider().GetRequiredService<IOptions<HangfireData>>().Value;
-
-                if (hangfireData != null)
-                {
-                    string username = hangfireData.Username ?? "";
-                    string password = hangfireData.Password ?? "";
-                    string dashboardPath = hangfireData.DashboardPath ?? "";
-                    string redisConnectionString = hangfireData.RedisConnectionString ?? "";
-
-                    RedisStorageOptions options = new RedisStorageOptions
-                    {
-                        Prefix = dashboardPath
-                    };
-
-                    config.UseRedisStorage(redisConnectionString, options);
-                }
-                else
-                {
-                    throw new BadHttpRequestException("Hangfire Setting Error.");
-                }
-            });
-
-            //Add Service
-            services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
-            services.AddScoped<IDataProtected, DataProtected>();
-            services.AddScoped<IPasswordHash, PasswordHash>();
-            services.AddScoped<IToken, Token>();
-            services.AddScoped<IMessagePublish, MessagePublish>();
-            services.AddScoped<IMessageConsume, MessageConsume>();
-            services.AddScoped<ICache, Cache>();
-
-            services.AddScoped<IUserService, UserService>();
-            services.AddScoped<ITokenService, TokenService>();
-            services.AddScoped<IMessageService, MessageService>();
+            //        config.UseRedisStorage(redisConnectionServer, options);
+            //    }
+            //    else
+            //    {
+            //        throw new BadHttpRequestException("Hangfire Setting Error.");
+            //    }
+            //});
         }
     }
 }

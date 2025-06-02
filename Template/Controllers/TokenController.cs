@@ -35,7 +35,27 @@ namespace Template.Controllers
         {
             try
             {
-                var result = await _tokenService.LoginAsync(input);
+                var result = new LoginDTO();
+
+                var checkDataInCache = await _tokenService.CheckDataInCacheAsync(input);
+
+                if (checkDataInCache != null)
+                {
+                    if (checkDataInCache.isHave)
+                    {
+                        result.Token = checkDataInCache.Token;
+                        result.RefreshToken = checkDataInCache.RefreshToken;
+                        result.Email = checkDataInCache.Email;
+                        result.Expires = checkDataInCache.Expires;
+                        result.Email = checkDataInCache.Email;
+                        result.CreatedDate = checkDataInCache.CreatedDate;
+                    }
+                    else
+                    {
+                        result = await _tokenService.LoginAsync(input);
+                    }
+                }
+
                 return Ok(result);
             }
             catch (Exception ex)

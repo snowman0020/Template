@@ -31,7 +31,6 @@ namespace Template.Helper.Token
             (
                 new List<Claim> {
                 new Claim("id", userId.ToString()),
-                new Claim("name", email.ToString()),
             });
 
             var tokenDescriptor = new SecurityTokenDescriptor

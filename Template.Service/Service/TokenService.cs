@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Template.Domain.AppSetting;
 using Template.Domain.DTO;
+using Template.Helper.DataCache;
 using Template.Helper.ErrorException;
 using Template.Helper.PasswordHash;
 using Template.Helper.Token;
@@ -20,14 +21,18 @@ namespace Template.Service.Services
         private readonly JWTData _jwtData;
         private readonly IPasswordHash _passwordHash;
         private readonly IToken _token;
+        private readonly IDataCache _dataCache;
+        private readonly RedisData _redisData;
 
-        public TokenService(TemplateDbContext db, ILogger<TokenService> logger, IOptions<JWTData> jwtData, IPasswordHash passwordHash, IToken token)
+        public TokenService(TemplateDbContext db, ILogger<TokenService> logger, IOptions<JWTData> jwtData, IPasswordHash passwordHash, IToken token, IDataCache dataCache, IOptions<RedisData> redisData)
         {
             _db = db;
             _logger = logger;
             _jwtData = jwtData.Value;
             _passwordHash = passwordHash;
             _token = token;
+            _dataCache = dataCache;
+            _redisData = redisData.Value;
         }
 
         public async Task<LoginDTO> LoginAsync(LoginRequest input)
@@ -75,9 +80,9 @@ namespace Template.Service.Services
                             throw new ErrorException();
                         }
 
-                        string userId = modelUser.ID ?? "";
+                        string Id = modelUser.ID ?? "";
 
-                        var createNewToken = _token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
+                        var createNewToken = _token.CreateNewToken(Id, email, issuer, expiryMinutes, key);
 
                         var token = new Tokens();
 
@@ -93,6 +98,8 @@ namespace Template.Service.Services
                         result = await GetTokenByEmailAsync(email);
                         result.GrantType = input.GrantType;
                         result.Expires = createNewToken.Expires;
+
+                        _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
                     }
                     else if (input.GrantType == GrantTypeStatus.REFRESH_TOKEN)
                     {
@@ -142,9 +149,9 @@ namespace Template.Service.Services
                             throw new ErrorException();
                         }
 
-                        string userId = modelUser.ID ?? "";
+                        string Id = modelUser.ID ?? "";
 
-                        var createRefreshToken = _token.CreateNewToken(userId, email, issuer, expiryMinutes, key);
+                        var createRefreshToken = _token.CreateNewToken(Id, email, issuer, expiryMinutes, key);
 
                         _db.Remove(modelToken);
                         await _db.SaveChangesAsync();
@@ -163,6 +170,8 @@ namespace Template.Service.Services
                         result = await GetTokenByEmailAsync(email);
                         result.GrantType = input.GrantType;
                         result.Expires = createRefreshToken.Expires;
+
+                        _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
                     }
                 }
                 catch (ErrorException)
@@ -239,6 +248,102 @@ namespace Template.Service.Services
                     throw new ErrorException();
                 }
             }
+        }
+
+        public async Task<LoginCacheDTO> CheckDataInCacheAsync(LoginRequest input)
+        {
+            _logger.LogInformation($"call: CheckDataInCacheAsync");
+
+            var result = new LoginCacheDTO();
+
+            using (var transaction = _db.Database.BeginTransaction())
+            {
+                try
+                {
+                    //_logger.LogDebug($"User login: {JsonSerializer.Serialize(input)}");
+
+                    string email = input.Email ?? "";
+
+                    var modelUser = await _db.Users.Where(u => u.Email == email && u.IsDeleted == false).AsNoTracking().FirstOrDefaultAsync();
+
+                    if (modelUser == null)
+                    {
+                        Error.Status = ErrorStatus.UN_AUTHORIZED;
+                        Error.Title = "Email not found.";
+                        Error.Message = "";
+
+                        throw new ErrorException();
+                    }
+
+                    string Id = modelUser.ID ?? "";
+
+                    var dataTokenInCache = _dataCache.GetDataFromCache(Id);
+
+                    bool isCheckFromDatabase = false;
+
+                    if (dataTokenInCache != null && dataTokenInCache.ExpiredDate != null)
+                    {
+                        if (dataTokenInCache.ExpiredDate < DateTime.Now)
+                        {
+                            _dataCache.RemoveKeyFromCache(Id);
+                            result.isHave = false;
+
+                            isCheckFromDatabase = true;
+                        }
+                        else
+                        {
+                            result.Token = dataTokenInCache.Token;
+                            result.RefreshToken = dataTokenInCache.RefreshToken;
+                            result.Email = dataTokenInCache.Email;
+                            result.Expires = dataTokenInCache.Expires;
+                            result.Email = dataTokenInCache.Email;
+                            result.CreatedDate = dataTokenInCache.CreatedDate;
+                            result.isHave = true;
+                        }
+                    }
+                    else
+                    {
+                        isCheckFromDatabase = true;
+                    }
+
+                    if (dataTokenInCache != null && !string.IsNullOrEmpty(dataTokenInCache.RefreshToken) && isCheckFromDatabase)
+                    {
+                        string refreshToken = dataTokenInCache.RefreshToken ?? "";
+
+                        var modelToken = await _db.Tokens.Where(u => u.RefreshToken == refreshToken).FirstOrDefaultAsync();
+
+                        if (modelToken != null)
+                        {
+                            _db.Remove(modelToken);
+                            await _db.SaveChangesAsync();
+
+                            transaction.Commit();
+                        }
+                    }
+                }
+                catch (ErrorException)
+                {
+                    transaction.Rollback();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
+
+                    throw;
+                }
+                catch (Exception ex)
+                {
+                    transaction.Rollback();
+
+                    Error.Status = ErrorStatus.BAD_REQUEST;
+                    Error.Title = "Can not login.";
+                    Error.Message = ex.Message.ToString();
+
+                    _logger.LogError($"error: Status: {Error.Status}, Title: {Error.Title}, Message: {Error.Message}");
+
+                    throw new ErrorException();
+                }
+            }
+
+            return result;
         }
 
         private async Task<LoginDTO> GetTokenByEmailAsync(string email)

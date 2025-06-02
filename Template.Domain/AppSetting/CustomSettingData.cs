@@ -4,6 +4,6 @@
     {
         public string? MainUrl { get; set; }
         public string? AllowedHosts { get; set; }
-        public string? DbConnectionString { get; set; }
+        public string? ConnectionServer { get; set; }
     }
 }

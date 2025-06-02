@@ -1,8 +1,11 @@
-﻿namespace Template.Helper.DataCache
+﻿using Template.Domain.DTO;
+
+namespace Template.Helper.DataCache
 {
     public interface IDataCache
     {
-        public T? GetData<T>(string key);
-        void SetData<T>(string key, T data);
+        void SetDataToCache(LoginDTO input, string Id, DateTime expiredDate);
+        LoginCacheDTO GetDataFromCache(string Id);
+        void RemoveKeyFromCache(string Id);
     }
 }
