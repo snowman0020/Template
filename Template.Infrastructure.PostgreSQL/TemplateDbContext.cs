@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.Models;
+using Template.Infrastructure.PostgreSQL.Models;
 
-namespace Template.Infrastructure
+namespace Template.Infrastructure.PostgreSQL
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {
@@ -27,7 +27,7 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
@@ -36,14 +36,14 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             //Table Messages
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Messages>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Messages>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             //// Inserting record in User table
@@ -68,7 +68,7 @@ namespace Template.Infrastructure
             var connectionString = configuration["ConnectionServer"];
 
             var builder = new DbContextOptionsBuilder<TemplateDbContext>();
-            builder.UseSqlServer(connectionString);
+            builder.UseNpgsql(connectionString);
 
             return new TemplateDbContext(builder.Options);
         }

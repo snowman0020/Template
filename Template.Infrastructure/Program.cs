@@ -6,7 +6,7 @@ string fileName = $"appsettings.json";
 
 var configuration = new ConfigurationBuilder().AddJsonFile(fileName).Build();
 
-var connectionString = configuration["DbConnectionString"];
+var connectionString = configuration["ConnectionServer"];
 
 var builder = new DbContextOptionsBuilder<TemplateDbContext>();
 builder.UseSqlServer(connectionString);

@@ -71,20 +71,20 @@ builder.Services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(d
 //Add DbContext
 builder.Services.AddDbContext<TemplateDbContext>(options =>
 {
-    string dbConnectionServer = "";
+    string connectionSQLServer = "";
 
     var customSettingData = builder.Configuration.GetSection("CustomSetting").Get<CustomSettingData>();
 
     if (customSettingData != null)
     {
-        dbConnectionServer = customSettingData.ConnectionServer ?? "";
+        connectionSQLServer = customSettingData.ConnectionSQLServer ?? "";
     }
     else
     {
         throw new BadHttpRequestException("custom Setting Error.");
     }
 
-    options.UseSqlServer(dbConnectionServer, s =>
+    options.UseSqlServer(connectionSQLServer, s =>
     {
         s.MigrationsAssembly("Template.Infrastructure");
     });

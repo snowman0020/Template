@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.Models;
+using Template.Infrastructure.MySQL.Models;
 
 namespace Template.Infrastructure
 {
@@ -27,24 +27,31 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
 
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
+            modelBuilder.Entity<Users>().HasIndex(m => m.OrderNumber).IsUnique();
 
             //Table Tokens
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");
+
+            modelBuilder.Entity<Tokens>().HasIndex(m => m.OrderNumber).IsUnique();
+            modelBuilder.Entity<Tokens>().HasIndex(m => m.OrderNumber).IsUnique();
 
             //Table Messages
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Messages>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
             modelBuilder.Entity<Messages>().Property(m => m.CreatedBy).HasDefaultValue("System");
+
+            modelBuilder.Entity<Messages>().HasIndex(m => m.OrderNumber).IsUnique();
+            modelBuilder.Entity<Messages>().HasIndex(m => m.OrderNumber).IsUnique();
 
             //// Inserting record in User table
             //var user = new Users()
@@ -65,10 +72,12 @@ namespace Template.Infrastructure
         {
             var configuration = new ConfigurationBuilder().AddJsonFile($"appsettings.json").Build();
 
-            var connectionString = configuration["ConnectionServer"];
+            var connectionString = configuration["ConnectionServer"] ?? "";
 
             var builder = new DbContextOptionsBuilder<TemplateDbContext>();
-            builder.UseSqlServer(connectionString);
+
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+            builder.UseMySql(connectionString, serverVersion);
 
             return new TemplateDbContext(builder.Options);
         }

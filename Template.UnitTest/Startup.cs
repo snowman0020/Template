@@ -58,9 +58,9 @@ namespace Template.UnitTest
 
                 if (customSettingData != null)
                 {
-                    var dbConnectionServer = customSettingData.ConnectionServer ?? "";
+                    var connectionSQLServer = customSettingData.ConnectionSQLServer ?? "";
 
-                    options.UseSqlServer(dbConnectionServer, s =>
+                    options.UseSqlServer(connectionSQLServer, s =>
                     {
                         s.MigrationsAssembly("Template.Infrastructure");
                     });

@@ -2,9 +2,9 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.Models;
+using Template.Infrastructure.SQLite.Models;
 
-namespace Template.Infrastructure
+namespace Template.Infrastructure.SQLite
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {
@@ -27,8 +27,10 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Users>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Users>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Users>().Property(m => m.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Users>().Property(m => m.CreatedBy).HasDefaultValue("System");
+            modelBuilder.Entity<Users>().Property(m => m.UpdatedDate).HasColumnType("datetime");
+            modelBuilder.Entity<Users>().Property(m => m.DeletedDate).HasColumnType("datetime");
 
             modelBuilder.Entity<Users>().HasIndex(m => m.Email).IsUnique();
 
@@ -36,15 +38,19 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Tokens>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Tokens>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Tokens>().Property(m => m.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Tokens>().Property(m => m.CreatedBy).HasDefaultValue("System");
+            modelBuilder.Entity<Tokens>().Property(m => m.UpdatedDate).HasColumnType("datetime");
+            modelBuilder.Entity<Tokens>().Property(m => m.DeletedDate).HasColumnType("datetime");
 
             //Table Messages
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
             modelBuilder.Entity<Messages>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
             modelBuilder.Entity<Messages>().Property(m => m.IsDeleted).HasDefaultValue(false);
-            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasDefaultValueSql("GETDATE()");
+            modelBuilder.Entity<Messages>().Property(m => m.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
             modelBuilder.Entity<Messages>().Property(m => m.CreatedBy).HasDefaultValue("System");
+            modelBuilder.Entity<Messages>().Property(m => m.UpdatedDate).HasColumnType("datetime");
+            modelBuilder.Entity<Messages>().Property(m => m.DeletedDate).HasColumnType("datetime");
 
             //// Inserting record in User table
             //var user = new Users()
@@ -68,7 +74,7 @@ namespace Template.Infrastructure
             var connectionString = configuration["ConnectionServer"];
 
             var builder = new DbContextOptionsBuilder<TemplateDbContext>();
-            builder.UseSqlServer(connectionString);
+            builder.UseSqlite(connectionString);
 
             return new TemplateDbContext(builder.Options);
         }

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.Models;
+using Template.Infrastructure.Oracle.Models;
 
 namespace Template.Infrastructure
 {
@@ -68,7 +68,7 @@ namespace Template.Infrastructure
             var connectionString = configuration["ConnectionServer"];
 
             var builder = new DbContextOptionsBuilder<TemplateDbContext>();
-            builder.UseSqlServer(connectionString);
+            builder.UseOracle(connectionString);
 
             return new TemplateDbContext(builder.Options);
         }
