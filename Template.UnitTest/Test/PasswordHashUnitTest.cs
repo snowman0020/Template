@@ -1,6 +1,6 @@
 using Template.Helper.PasswordHash;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class PasswordHashUnitTest : IClassFixture<Startup>
     {

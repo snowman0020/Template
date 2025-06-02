@@ -6,7 +6,7 @@ using Template.Domain.SortBy;
 using Template.Infrastructure;
 using Template.Service.IServices;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class UserServiceUnitTest : IClassFixture<Startup>, IDisposable
     {

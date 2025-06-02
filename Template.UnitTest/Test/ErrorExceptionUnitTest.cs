@@ -1,7 +1,7 @@
 using Template.Domain.DTO;
 using Template.Helper.ErrorException;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     //public class Startup
     //{

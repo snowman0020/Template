@@ -4,7 +4,7 @@ using Template.Domain.DTO;
 using Template.Helper.DataCache;
 using Template.Infrastructure;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class DataCacheUnitTest : IClassFixture<Startup>, IDisposable
     {

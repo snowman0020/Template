@@ -4,7 +4,7 @@ using Template.Helper.Token;
 using Template.Infrastructure;
 using Template.Service.IServices;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class TokenUnitTest : IClassFixture<Startup>, IDisposable
     {

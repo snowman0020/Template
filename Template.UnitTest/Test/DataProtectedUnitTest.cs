@@ -1,6 +1,6 @@
 using Template.Helper.DataProtected;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class DataProtectedUnitTest : IClassFixture<Startup>
     {

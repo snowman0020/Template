@@ -3,7 +3,7 @@ using Template.Domain.DTO;
 using Template.Infrastructure;
 using Template.Service.IServices;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class TokenServiceUnitTest : IClassFixture<Startup>, IDisposable
     {

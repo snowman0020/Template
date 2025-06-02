@@ -5,7 +5,7 @@ using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
 using Template.Infrastructure.Models;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Test
 {
     public class MessagePublishAndConsumeUnitTest : IClassFixture<Startup>
     {
