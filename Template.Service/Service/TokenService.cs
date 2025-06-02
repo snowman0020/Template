@@ -99,7 +99,7 @@ namespace Template.Service.Services
                         result.GrantType = input.GrantType;
                         result.Expires = createNewToken.Expires;
 
-                        _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
+                        await _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
                     }
                     else if (input.GrantType == GrantTypeStatus.REFRESH_TOKEN)
                     {
@@ -171,7 +171,7 @@ namespace Template.Service.Services
                         result.GrantType = input.GrantType;
                         result.Expires = createRefreshToken.Expires;
 
-                        _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
+                        await _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
                     }
                 }
                 catch (ErrorException)
@@ -277,7 +277,7 @@ namespace Template.Service.Services
 
                     string Id = modelUser.ID ?? "";
 
-                    var dataTokenInCache = _dataCache.GetDataFromCache(Id);
+                    var dataTokenInCache = await _dataCache.GetDataFromCache(Id);
 
                     bool isCheckFromDatabase = false;
 
@@ -285,7 +285,7 @@ namespace Template.Service.Services
                     {
                         if (dataTokenInCache.ExpiredDate < DateTime.Now)
                         {
-                            _dataCache.RemoveKeyFromCache(Id);
+                            await _dataCache.RemoveKeyFromCache(Id);
                             result.isHave = false;
 
                             isCheckFromDatabase = true;

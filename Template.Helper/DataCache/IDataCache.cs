@@ -4,8 +4,8 @@ namespace Template.Helper.DataCache
 {
     public interface IDataCache
     {
-        void SetDataToCache(LoginDTO input, string Id, DateTime expiredDate);
-        LoginCacheDTO GetDataFromCache(string Id);
-        void RemoveKeyFromCache(string Id);
+        Task SetDataToCache(LoginDTO input, string Id, DateTime expiredDate);
+        Task<LoginCacheDTO> GetDataFromCache(string Id);
+        Task RemoveKeyFromCache(string Id);
     }
 }

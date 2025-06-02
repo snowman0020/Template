@@ -1,20 +1,11 @@
-﻿using Microsoft.Extensions.Hosting;
-
-namespace Template.Helper.BackgroundWorkJob
+﻿namespace Template.Helper.BackgroundWorkJob
 {
-
-    public class BackgroundWorkJob : IBackgroundWorkJob, IHostedService
+    public class BackgroundWorkJob
     {
-        public async Task StartAsync(CancellationToken cancellationToken)
-        {
-            //await testJob();
-            throw new NotImplementedException();
-        }
-
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            throw new NotImplementedException();
-        }
+        //public  Task StartAsync()
+        //{
+        //    await testForNotShowWarning();
+        //}
 
         //private async Task testJob()
         //{

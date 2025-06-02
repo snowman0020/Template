@@ -24,7 +24,7 @@ namespace Template.UnitTest.Test
         }
 
         [Fact]
-        public void DataCacheFlowTest()
+        public async Task DataCacheFlowTest()
         {
             string dataId = "7177ea0f-af20-499d-a5fc-c0b0d96501a1";
             string refreshToken = "e84c2159-737a-46cd-8107-b7b1f5b5d760";
@@ -34,9 +34,9 @@ namespace Template.UnitTest.Test
 
             DateTime expiredDate = DateTime.Now;
 
-            _dataCache.SetDataToCache(dataToCache, dataId, expiredDate);
+            await _dataCache.SetDataToCache(dataToCache, dataId, expiredDate);
 
-            var dataFromCache = _dataCache.GetDataFromCache(dataId);
+            var dataFromCache = await _dataCache.GetDataFromCache(dataId);
 
             Assert.NotNull(dataFromCache);
             Assert.NotNull(dataFromCache.RefreshToken);
@@ -44,9 +44,9 @@ namespace Template.UnitTest.Test
 
             Assert.Equal(refreshToken, dataFromCache.RefreshToken);
 
-            _dataCache.RemoveKeyFromCache(dataId);
+            await _dataCache.RemoveKeyFromCache(dataId);
 
-            var dataFromDeleteCache = _dataCache.GetDataFromCache(dataId);
+            var dataFromDeleteCache = await _dataCache.GetDataFromCache(dataId);
 
             Assert.Null(dataFromDeleteCache.RefreshToken);
             Assert.NotEqual(refreshToken, dataFromDeleteCache.RefreshToken);

@@ -2,8 +2,8 @@
 {
     public interface IBackgroundWorkJob
     {
-        Task StartAsync(CancellationToken cancellationToken);
+        //Task StartAsync(CancellationToken cancellationToken);
 
-        Task StopAsync(CancellationToken cancellationToken);
+        //Task StopAsync(CancellationToken cancellationToken);
     }
 }

@@ -24,7 +24,7 @@ namespace Template.Helper.DataCache
             _redisData = redisData.Value;
         }
  
-        public void SetDataToCache(LoginDTO input, string Id, DateTime expiredDate)
+        public async Task SetDataToCache(LoginDTO input, string Id, DateTime expiredDate)
         {
             if (input != null)
             {
@@ -43,13 +43,13 @@ namespace Template.Helper.DataCache
                 string cacheId = _redisData.CacheId ?? "";
                 cacheId = cacheId.Replace("{id}", Id);
 
-                 SetData(cacheId, dataTokenInCache);
+                 await SetData(cacheId, dataTokenInCache);
 
                 _logger.LogDebug($"cache id: {cacheId}, data: {JsonSerializer.Serialize(dataTokenInCache)}");
             }
         }
 
-        public LoginCacheDTO GetDataFromCache(string Id)
+        public async Task<LoginCacheDTO> GetDataFromCache(string Id)
         {
             var result = new LoginCacheDTO();
 
@@ -62,7 +62,7 @@ namespace Template.Helper.DataCache
                 string cacheId = _redisData.CacheId ?? "";
                 cacheId = cacheId.Replace("{id}", Id);
 
-                var dataTokenInCache = _distributedCache.GetString(cacheId);
+                var dataTokenInCache = await _distributedCache.GetStringAsync(cacheId);
                 
                 if (dataTokenInCache != null)
                 {
@@ -90,7 +90,7 @@ namespace Template.Helper.DataCache
             return result;
         }
 
-        public void RemoveKeyFromCache(string Id)
+        public async Task RemoveKeyFromCache(string Id)
         {
             if (!string.IsNullOrEmpty(Id))
             {
@@ -99,13 +99,13 @@ namespace Template.Helper.DataCache
                 string cacheId = _redisData.CacheId ?? "";
                 cacheId = cacheId.Replace("{id}", Id);
 
-                _distributedCache.Remove(cacheId);
+                await _distributedCache.RemoveAsync(cacheId);
 
                 _logger.LogDebug($"cache id: {cacheId}, remove success");
             }
         }
 
-        private void SetData<T>(string key, T data)
+        private async Task SetData<T>(string key, T data)
         {
             _logger.LogInformation($"call: SetData");
 
@@ -120,23 +120,7 @@ namespace Template.Helper.DataCache
 
             _logger.LogDebug($"data: {JsonSerializer.Serialize(data)}");
 
-            _distributedCache.SetString(key, JsonSerializer.Serialize(data), options);
-        }
-
-        private T? GetData<T>(string key)
-        {
-            _logger.LogInformation($"call: GetData");
-
-            var data = _distributedCache.GetString(key);
-
-            if (data is null)
-            {
-                return default(T);
-            }
-
-            _logger.LogDebug($"data: {data}");
-
-            return JsonSerializer.Deserialize<T>(data);
+            await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(data), options);
         }
     }
 }
