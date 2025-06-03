@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using Template.Domain.AppSetting;
 using Template.Domain.DTO;
-using Template.Infrastructure.Models;
 
 namespace Template.Helper.DataCache
 {
