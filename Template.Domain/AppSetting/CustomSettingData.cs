@@ -9,5 +9,12 @@
         public string? ConnectionOracleServer { get; set; }
         public string? ConnectionSQLiteServer { get; set; }
         public string? ConnectionPostgreSQLServer { get; set; }
+        public MongoDB? MongoDB { get; set; }
+    }
+
+    public class MongoDB
+    {
+        public string? ConnectionServer { get; set; }
+        public string? DatabaseName { get; set; }
     }
 }
