@@ -36,4 +36,10 @@
     <ProjectReference Include="..\Template.Service\Template.Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="Message.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

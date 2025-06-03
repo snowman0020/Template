@@ -10,6 +10,7 @@ using Template.Helper.DataCache;
 using Template.Helper.DataProtected;
 using Template.Helper.Email;
 using Template.Helper.ErrorException;
+using Template.Helper.Line;
 using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
 using Template.Helper.PasswordHash;
@@ -33,6 +34,7 @@ namespace Template.UnitTest
             services.Configure<EmailData>(_configuration.GetSection("Email"));
             services.Configure<HangfireData>(_configuration.GetSection("Hangfire"));
             services.Configure<JWTData>(_configuration.GetSection("JWT"));
+            services.Configure<LineData>(_configuration.GetSection("Line"));
             services.Configure<RabbitMQData>(_configuration.GetSection("RabbitMQ"));
             services.Configure<RedisData>(_configuration.GetSection("Redis"));
 
@@ -41,6 +43,7 @@ namespace Template.UnitTest
             services.AddScoped<IDataProtected, DataProtected>();
             services.AddScoped<IEmail, Email>();
             services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
+            services.AddScoped<ILine, Line>();
             services.AddScoped<IMessageConsume, MessageConsume>();
             services.AddScoped<IMessagePublish, MessagePublish>();
             services.AddScoped<IPasswordHash, PasswordHash>();
