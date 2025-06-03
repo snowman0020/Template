@@ -10,6 +10,7 @@ using System.Text;
 using Template.Domain.AppSetting;
 using Template.Helper.DataCache;
 using Template.Helper.DataProtected;
+using Template.Helper.Email;
 using Template.Helper.ErrorException;
 using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
@@ -31,6 +32,7 @@ builder.Logging.AddConsole();
 
 //Mapping appsetting.json to class
 builder.Services.Configure<CustomSettingData>(builder.Configuration.GetSection("CustomSetting"));
+builder.Services.Configure<EmailData>(builder.Configuration.GetSection("Email"));
 builder.Services.Configure<HangfireData>(builder.Configuration.GetSection("Hangfire"));
 builder.Services.Configure<JWTData>(builder.Configuration.GetSection("JWT"));
 builder.Services.Configure<LoggingData>(builder.Configuration.GetSection("Logging"));
@@ -42,6 +44,7 @@ builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilo
 //builder.Services.AddScoped<IBackgroundWorkJob, BackgroundWorkJob>();
 builder.Services.AddScoped<IDataCache, DataCache>();
 builder.Services.AddScoped<IDataProtected, DataProtected>();
+builder.Services.AddScoped<IEmail, Email>();
 builder.Services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
 builder.Services.AddScoped<IMessageConsume, MessageConsume>();
 builder.Services.AddScoped<IMessagePublish, MessagePublish>();

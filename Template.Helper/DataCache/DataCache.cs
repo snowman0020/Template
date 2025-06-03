@@ -23,12 +23,12 @@ namespace Template.Helper.DataCache
             _redisData = redisData.Value;
         }
  
-        public async Task SetDataToCache(LoginDTO input, string Id, DateTime expiredDate)
+        public async Task SetDataToCacheAsync(LoginDTO input, string Id, DateTime expiredDate)
         {
+            _logger.LogInformation($"call: SetDataToCacheAsync=> Start");
+
             if (input != null)
             {
-                _logger.LogInformation($"call: SetDataToCache");
-
                 var dataTokenInCache = new LoginCacheDTO();
 
                 dataTokenInCache.Token = input.Token;
@@ -42,20 +42,22 @@ namespace Template.Helper.DataCache
                 string cacheId = _redisData.CacheId ?? "";
                 cacheId = cacheId.Replace("{id}", Id);
 
-                 await SetData(cacheId, dataTokenInCache);
+                 await SetDataAsync(cacheId, dataTokenInCache);
 
                 _logger.LogDebug($"cache id: {cacheId}, data: {JsonSerializer.Serialize(dataTokenInCache)}");
             }
+
+            _logger.LogInformation($"call: SetDataToCacheAsync=> Finish");
         }
 
-        public async Task<LoginCacheDTO> GetDataFromCache(string Id)
+        public async Task<LoginCacheDTO> GetDataFromCacheAsync(string Id)
         {
+            _logger.LogInformation($"call: GetDataFromCacheAsync=> Start");
+
             var result = new LoginCacheDTO();
 
             if (!string.IsNullOrEmpty(Id))
             {
-                _logger.LogInformation($"call: SetDataFromCache");
-
                 _logger.LogDebug($"user id: {Id}");
 
                 string cacheId = _redisData.CacheId ?? "";
@@ -86,15 +88,17 @@ namespace Template.Helper.DataCache
                 }
             }
 
+            _logger.LogInformation($"call: GetDataFromCacheAsync=> Finish");
+
             return result;
         }
 
-        public async Task RemoveKeyFromCache(string Id)
+        public async Task RemoveKeyFromCacheAsync(string Id)
         {
+            _logger.LogInformation($"call: RemoveKeyFromCacheAsync=> Start");
+
             if (!string.IsNullOrEmpty(Id))
             {
-                _logger.LogInformation($"call: RemoveKeyFromCache");
-
                 string cacheId = _redisData.CacheId ?? "";
                 cacheId = cacheId.Replace("{id}", Id);
 
@@ -102,11 +106,13 @@ namespace Template.Helper.DataCache
 
                 _logger.LogDebug($"cache id: {cacheId}, remove success");
             }
+
+            _logger.LogInformation($"call: RemoveKeyFromCacheAsync=> Finish");
         }
 
-        private async Task SetData<T>(string key, T data)
+        private async Task SetDataAsync<T>(string key, T data)
         {
-            _logger.LogInformation($"call: SetData");
+            _logger.LogInformation($"call: SetDataAsync=> Start");
 
             int absoluteExpirationRelativeToNow = _redisData.AbsoluteExpirationRelativeToNow;
             int slidingExpiration = _redisData.SlidingExpiration;
@@ -120,6 +126,8 @@ namespace Template.Helper.DataCache
             _logger.LogDebug($"data: {JsonSerializer.Serialize(data)}");
 
             await _distributedCache.SetStringAsync(key, JsonSerializer.Serialize(data), options);
+
+            _logger.LogInformation($"call: SetDataAsync=> Finish");
         }
     }
 }

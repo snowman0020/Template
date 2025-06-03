@@ -13,6 +13,7 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
 using Template.Service.IServices;
+using static MassTransit.ValidationResultExtensions;
 
 namespace Template.Service.Services
 {
@@ -35,7 +36,9 @@ namespace Template.Service.Services
 
         public async Task<PageList<UserDTO>> GetUserListAsync(UserFilter? filter, PageParam pageParam, UserSortBy? sortBy)
         {
-            _logger.LogInformation($"call: GetUserListAsync");
+            _logger.LogInformation($"call: GetUserListAsync=> Start");
+
+            var userListDTO = new List<UserDTO>();
 
             try
             {
@@ -127,14 +130,8 @@ namespace Template.Service.Services
                 #region Paging
                 var queryUserResult = await PageList<Users>.ToModelList(queryUser, pageParam);
 
-                var userListDTO = queryUserResult.Select(qur => UserDTO.CreateFromModel(qur)).ToList();
-
-                var result = PageList<UserDTO>.ToPagedList(userListDTO, pageParam);
+                userListDTO = queryUserResult.Select(qur => UserDTO.CreateFromModel(qur)).ToList();
                 #endregion
-
-                _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
-
-                return result;
             }
             catch (Exception ex)
             {
@@ -146,11 +143,19 @@ namespace Template.Service.Services
 
                 throw;
             }
+
+            var result = PageList<UserDTO>.ToPagedList(userListDTO, pageParam);
+
+            _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
+            _logger.LogInformation($"call: GetUserListAsync=> Finish");
+
+            return result;
         }
 
         public async Task<UserDTO> GetUserByIdAsync(string Id)
         {
-            _logger.LogInformation($"call: GetUserByIdAsync");
+            _logger.LogInformation($"call: GetUserByIdAsync=> Start");
 
             var result = new UserDTO();
 
@@ -203,12 +208,14 @@ namespace Template.Service.Services
                 throw;
             }
 
+            _logger.LogInformation($"call: GetUserByIdAsync=> Finish");
+
             return result;
         }
 
         public async Task<UserDTO> AddUserAsync(UserRequest input, string userAddId)
         {
-            _logger.LogInformation($"call: AddUserAsync");
+            _logger.LogInformation($"call: AddUserAsync=> Start");
 
             var result = new UserDTO();
 
@@ -273,12 +280,14 @@ namespace Template.Service.Services
                 }
             }
 
+            _logger.LogInformation($"call: AddUserAsync=> Finish");
+
             return result;
         }
 
         public async Task<UserDTO> UpdateUserAsync(string Id, UserRequest input, string userUpdateId)
         {
-            _logger.LogInformation($"call: UpdateUserAsync");
+            _logger.LogInformation($"call: UpdateUserAsync=> Start");
 
             var result = new UserDTO();
 
@@ -378,6 +387,8 @@ namespace Template.Service.Services
                     throw new ErrorException();
                 }
             }
+
+            _logger.LogInformation($"call: UpdateUserAsync=> Finish");
 
             return result;
         }

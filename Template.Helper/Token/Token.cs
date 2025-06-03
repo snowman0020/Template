@@ -19,7 +19,7 @@ namespace Template.Helper.Token
 
         public LoginDTO CreateNewToken(string userId, string email, string issuer, int expMinutes, string key)
         {
-            _logger.LogInformation($"call: CreateNewToken");
+            _logger.LogInformation($"call: CreateNewToken=> Start");
 
             var result = new LoginDTO();
 
@@ -55,6 +55,8 @@ namespace Template.Helper.Token
             result.Email = email;
 
             _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
+            _logger.LogInformation($"call: CreateNewToken=> Finish");
 
             return result;
         } 

@@ -37,7 +37,7 @@ namespace Template.Service.Services
 
         public async Task<LoginDTO> LoginAsync(LoginRequest input)
         {
-            _logger.LogInformation($"call: LoginAsync");
+            _logger.LogInformation($"call: LoginAsync=> Start");
 
             var result = new LoginDTO();
 
@@ -99,7 +99,7 @@ namespace Template.Service.Services
                         result.GrantType = input.GrantType;
                         result.Expires = createNewToken.Expires;
 
-                        await _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
+                        await _dataCache.SetDataToCacheAsync(result, Id, token.ExpiredDate);
                     }
                     else if (input.GrantType == GrantTypeStatus.REFRESH_TOKEN)
                     {
@@ -171,7 +171,7 @@ namespace Template.Service.Services
                         result.GrantType = input.GrantType;
                         result.Expires = createRefreshToken.Expires;
 
-                        await _dataCache.SetDataToCache(result, Id, token.ExpiredDate);
+                        await _dataCache.SetDataToCacheAsync(result, Id, token.ExpiredDate);
                     }
                 }
                 catch (ErrorException)
@@ -196,12 +196,14 @@ namespace Template.Service.Services
                 }
             }
 
+            _logger.LogInformation($"call: LoginAsync=> Finish");
+
             return result;
         }
 
         public async Task LogoutAsync(LogoutRequest input)
         {
-            _logger.LogInformation($"call: LogoutAsync");
+            _logger.LogInformation($"call: LogoutAsync=> Start");
 
             var result = new UserDTO();
 
@@ -247,12 +249,14 @@ namespace Template.Service.Services
 
                     throw new ErrorException();
                 }
+
+                _logger.LogInformation($"call: LogoutAsync=> Finish");
             }
         }
 
         public async Task<LoginCacheDTO> CheckDataInCacheAsync(LoginRequest input)
         {
-            _logger.LogInformation($"call: CheckDataInCacheAsync");
+            _logger.LogInformation($"call: CheckDataInCacheAsync=> Start");
 
             var result = new LoginCacheDTO();
 
@@ -277,7 +281,7 @@ namespace Template.Service.Services
 
                     string Id = modelUser.ID ?? "";
 
-                    var dataTokenInCache = await _dataCache.GetDataFromCache(Id);
+                    var dataTokenInCache = await _dataCache.GetDataFromCacheAsync(Id);
 
                     bool isCheckFromDatabase = false;
 
@@ -285,7 +289,7 @@ namespace Template.Service.Services
                     {
                         if (dataTokenInCache.ExpiredDate < DateTime.Now)
                         {
-                            await _dataCache.RemoveKeyFromCache(Id);
+                            await _dataCache.RemoveKeyFromCacheAsync(Id);
                             result.isHave = false;
 
                             isCheckFromDatabase = true;
@@ -343,12 +347,14 @@ namespace Template.Service.Services
                 }
             }
 
+            _logger.LogInformation($"call: CheckDataInCacheAsync=> Finish");
+
             return result;
         }
 
         private async Task<LoginDTO> GetTokenByEmailAsync(string email)
         {
-            _logger.LogInformation($"call: GetTokenByEmailAsync");
+            _logger.LogInformation($"call: GetTokenByEmailAsync=> Start");
 
             var result = new LoginDTO();
 
@@ -389,6 +395,8 @@ namespace Template.Service.Services
 
                 throw;
             }
+
+            _logger.LogInformation($"call: GetTokenByEmailAsync=> Finish");
 
             return result;
         }

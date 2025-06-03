@@ -8,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Template.Domain.AppSetting;
 using Template.Helper.DataCache;
 using Template.Helper.DataProtected;
+using Template.Helper.Email;
 using Template.Helper.ErrorException;
 using Template.Helper.MessageConsume;
 using Template.Helper.MessagePublish;
@@ -28,15 +29,17 @@ namespace Template.UnitTest
             var _configuration = new ConfigurationBuilder().SetBasePath(baseDirectory).AddJsonFile("appsettings.json", false, true).Build();
 
             //Mapping appsetting.json to class
-            services.Configure<JWTData>(_configuration.GetSection("JWT"));
             services.Configure<CustomSettingData>(_configuration.GetSection("CustomSetting"));
+            services.Configure<EmailData>(_configuration.GetSection("Email"));
+            services.Configure<HangfireData>(_configuration.GetSection("Hangfire"));
+            services.Configure<JWTData>(_configuration.GetSection("JWT"));
             services.Configure<RabbitMQData>(_configuration.GetSection("RabbitMQ"));
             services.Configure<RedisData>(_configuration.GetSection("Redis"));
-            services.Configure<HangfireData>(_configuration.GetSection("Hangfire"));
 
             //Add Service
             services.AddScoped<IDataCache, DataCache>();
             services.AddScoped<IDataProtected, DataProtected>();
+            services.AddScoped<IEmail, Email>();
             services.AddScoped<IErrorExceptionHandler, ErrorExceptionHandler>();
             services.AddScoped<IMessageConsume, MessageConsume>();
             services.AddScoped<IMessagePublish, MessagePublish>();

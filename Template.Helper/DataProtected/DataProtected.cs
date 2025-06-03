@@ -16,22 +16,26 @@ namespace Template.Helper.DataProtected
 
         public string ProtectInformation(string sensitiveData)
         {
-            _logger.LogInformation($"call: ProtectInformation");
+            _logger.LogInformation($"call: ProtectInformation=> Start");
 
             var protectedData = _dataProtector.Protect(sensitiveData);
 
             _logger.LogDebug($"data: {protectedData}");
+
+            _logger.LogInformation($"call: ProtectInformation=> Finish");
 
             return protectedData;
         }
 
         public string UnProtectInformantion(string protectedData)
         {
-            _logger.LogInformation($"call: UnProtectInformantion");
+            _logger.LogInformation($"call: UnProtectInformantion=> Start");
 
             var sensitiveData = _dataProtector.Unprotect(protectedData);
 
             //_logger.LogDebug($"data: {sensitiveData}");
+
+            _logger.LogInformation($"call: UnProtectInformantion=> Finish");
 
             return sensitiveData;
         }

@@ -34,9 +34,9 @@ namespace Template.UnitTest.Test
 
             DateTime expiredDate = DateTime.Now;
 
-            await _dataCache.SetDataToCache(dataToCache, dataId, expiredDate);
+            await _dataCache.SetDataToCacheAsync(dataToCache, dataId, expiredDate);
 
-            var dataFromCache = await _dataCache.GetDataFromCache(dataId);
+            var dataFromCache = await _dataCache.GetDataFromCacheAsync(dataId);
 
             Assert.NotNull(dataFromCache);
             Assert.NotNull(dataFromCache.RefreshToken);
@@ -44,9 +44,9 @@ namespace Template.UnitTest.Test
 
             Assert.Equal(refreshToken, dataFromCache.RefreshToken);
 
-            await _dataCache.RemoveKeyFromCache(dataId);
+            await _dataCache.RemoveKeyFromCacheAsync(dataId);
 
-            var dataFromDeleteCache = await _dataCache.GetDataFromCache(dataId);
+            var dataFromDeleteCache = await _dataCache.GetDataFromCacheAsync(dataId);
 
             Assert.Null(dataFromDeleteCache.RefreshToken);
             Assert.NotEqual(refreshToken, dataFromDeleteCache.RefreshToken);

@@ -14,22 +14,26 @@ namespace Template.Helper.PasswordHash
 
         public string Encrypt(string password)
         {
-           _logger.LogInformation($"call: Encrypt");
+           _logger.LogInformation($"call: Encrypt=> Start");
 
             string passwordHash = Argon2.Hash(password);
 
             _logger.LogDebug($"data: {passwordHash}");
+
+            _logger.LogInformation($"call: Encrypt=> Finish");
 
             return passwordHash;
         }
 
         public bool Verify(string passwordHash, string password)
         {
-            _logger.LogInformation($"call: Verify");
+            _logger.LogInformation($"call: Verify=> Start");
 
             bool isVerify = Argon2.Verify(passwordHash, password);
 
             _logger.LogDebug($"data: {isVerify}");
+
+            _logger.LogInformation($"call: Verify=> Finish");
 
             return isVerify;
         }

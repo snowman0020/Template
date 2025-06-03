@@ -18,11 +18,13 @@ namespace Template.Helper.MessagePublish
 
         public async Task MessagePublishAsync(MessageDTO message, string queueName)
         {
-            _logger.LogInformation($"call: MessagePublishAsync");
+            _logger.LogInformation($"call: MessagePublishAsync=> Start");
+
+            await _publishEndpoint.Publish<MessageDTO>(message);
 
             _logger.LogDebug($"message: {JsonSerializer.Serialize(message)}, queueName: {queueName}");
 
-            await _publishEndpoint.Publish<MessageDTO>(message);
+            _logger.LogInformation($"call: MessagePublishAsync=> Finish");
         }
     }
 }

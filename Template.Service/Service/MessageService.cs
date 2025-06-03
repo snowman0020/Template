@@ -21,7 +21,7 @@ namespace Template.Service.Services
 
         public async Task AddMessageAsync(MessageDTO input)
         {
-            _logger.LogInformation($"call: AddMessageAsync");
+            _logger.LogInformation($"call: AddMessageAsync=> Start");
 
             _logger.LogDebug($"Message add: {JsonSerializer.Serialize(input)}");
 
@@ -58,6 +58,8 @@ namespace Template.Service.Services
 
                     throw new ErrorException();
                 }
+
+                _logger.LogInformation($"call: AddMessageAsync=> Finish");
             }
         }
     }

@@ -14,7 +14,7 @@ namespace Template.Helper.ErrorException
 
         public ErrorResultDTO ErrorException(Exception exception, ErrorStatus errorStatus, string? title, string? message)
         {
-            _logger.LogInformation($"call: ErrorException");
+            _logger.LogInformation($"call: ErrorException=> Start");
 
             var result = new ErrorResultDTO();
 
@@ -58,6 +58,8 @@ namespace Template.Helper.ErrorException
             //result.Instance = $"{httpContext.Request.Method} {httpContext.Request.Path}";
 
             _logger.LogDebug($"data: {JsonSerializer.Serialize(result)}");
+
+            _logger.LogInformation($"call: ErrorException=> Finish");
 
             return result;
         }

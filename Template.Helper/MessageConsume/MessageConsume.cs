@@ -21,18 +21,20 @@ namespace Template.Helper.MessageConsume
 
         public async Task Consume(ConsumeContext<MessageDTO> consumeContext)
         {
-            _logger.LogInformation($"call: MessageConsumeAsync");
+            _logger.LogInformation($"call: MessageConsumeAsync=> Start");
 
             _logger.LogDebug($"Id: {consumeContext.MessageId}, message: {JsonSerializer.Serialize(consumeContext.Message)}");
 
             //await Task.Run(() => CallApiAddMessageAsync(consumeContext.Message));
 
             await CallApiAddMessageAsync(consumeContext.Message);
+
+            _logger.LogInformation($"call: MessageConsumeAsync=> Finish");
         }
 
         private async Task CallApiAddMessageAsync(MessageDTO message)
         {
-            _logger.LogInformation($"call: CallApiAddMessageAsync");
+            _logger.LogInformation($"call: CallApiAddMessageAsync=> Start");
 
             _logger.LogDebug($"data: {JsonSerializer.Serialize(message)}");
 
@@ -60,6 +62,8 @@ namespace Template.Helper.MessageConsume
             {
                 _logger.LogInformation($"Success: {response.ReasonPhrase} status: {response.StatusCode}, message: {JsonSerializer.Serialize(response.Content.ReadAsStringAsync())}");
             }
+
+            _logger.LogInformation($"call: CallApiAddMessageAsync=> Finish");
         }
     }
 }
