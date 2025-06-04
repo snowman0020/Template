@@ -77,7 +77,7 @@ namespace Template.Domain.DTO
         [EditorBrowsable(EditorBrowsableState.Never)]
         public string? DeletedBy { get; set; }
 
-        public static UserDTO CreateFromModel(Users model)
+        public static UserDTO AddFromModel(Users model)
         {
             var result = new UserDTO();
 

@@ -26,6 +26,8 @@ namespace Template.UnitTest.Test
         [Fact]
         public async Task SendEmailSmtpTextBodyTypeTest()
         {
+            Dispose();
+
             bool isSendSuccess = false;
             try
             {
@@ -83,6 +85,8 @@ namespace Template.UnitTest.Test
         [Fact]
         public async Task SendEmailGraphApiTextBodyTypeTest()
         {
+            Dispose();
+
             bool isSendSuccess = false;
             try
             {
@@ -141,6 +145,8 @@ namespace Template.UnitTest.Test
         [Fact]
         public async Task SendEmailSmtpHtmlBodyTypeTest()
         {
+            Dispose();
+
             bool isSendSuccess = false;
             try
             {
@@ -208,6 +214,8 @@ namespace Template.UnitTest.Test
         [Fact]
         public async Task SendEmailGraphApiHtmlBodyTypeTest()
         {
+            Dispose();
+
             bool isSendSuccess = false;
             try
             {

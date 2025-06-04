@@ -5,7 +5,6 @@ namespace Template.Domain.DTO
 {
     public class MessageDTO
     {
-        [Required(ErrorMessage = "Email not empty.")]
         public string? ID { get; set; }
 
         [Required(ErrorMessage = "User id not empty.")]
@@ -17,7 +16,7 @@ namespace Template.Domain.DTO
         [Required(ErrorMessage = "Detail not empty.")]
         public string? Detail { get; set; }
 
-        public static MessageDTO CreateFromModel(Messages model)
+        public static MessageDTO AddFromModel(Messages model)
         {
             var result = new MessageDTO();
 

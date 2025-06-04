@@ -53,7 +53,7 @@ namespace Template.Domain.DTO
         [EditorBrowsable(EditorBrowsableState.Never)]
         public DateTime? CreatedDate { get; set; }
 
-        public static LoginDTO CreateFromModel(Tokens model)
+        public static LoginDTO AddFromModel(Tokens model)
         {
             var result = new LoginDTO();
 

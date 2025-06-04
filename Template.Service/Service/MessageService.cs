@@ -4,7 +4,6 @@ using Microsoft.Extensions.Options;
 using System.Text.Json;
 using Template.Domain.AppSetting;
 using Template.Domain.DTO;
-using Template.Helper.Email;
 using Template.Helper.ErrorException;
 using Template.Helper.Line;
 using Template.Infrastructure;
@@ -89,7 +88,7 @@ namespace Template.Service.Services
                         var baseDirectory = AppContext.BaseDirectory;
                         string messageHtml = File.ReadAllText(Path.Combine(baseDirectory, "Message.html"));
                         messageHtml = messageHtml.Replace("{topic}", message.Topic);
-                        messageHtml = messageHtml.Replace("{Detail}", message.Detail);
+                        messageHtml = messageHtml.Replace("{detail}", message.Detail);
                         messageHtml = messageHtml.Replace("{user}", message.ID);
                         messageHtml = messageHtml.Replace("{createDate}", message.CreatedDate.ToString());
 
@@ -201,7 +200,7 @@ namespace Template.Service.Services
                             var baseDirectory = AppContext.BaseDirectory;
                             string messageHtml = File.ReadAllText(Path.Combine(baseDirectory, "Message.html"));
                             messageHtml = messageHtml.Replace("{topic}", message.Messages?.Topic);
-                            messageHtml = messageHtml.Replace("{Detail}", message.Messages?.Detail);
+                            messageHtml = messageHtml.Replace("{detail}", message.Messages?.Detail);
                             messageHtml = messageHtml.Replace("{user}", message.ID);
                             messageHtml = messageHtml.Replace("{createDate}", message.CreatedDate.ToString());
 

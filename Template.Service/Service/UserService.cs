@@ -130,7 +130,7 @@ namespace Template.Service.Services
                 #region Paging
                 var queryUserResult = await PageList<Users>.ToModelList(queryUser, pageParam);
 
-                userListDTO = queryUserResult.Select(qur => UserDTO.CreateFromModel(qur)).ToList();
+                userListDTO = queryUserResult.Select(qur => UserDTO.AddFromModel(qur)).ToList();
                 #endregion
             }
             catch (Exception ex)
@@ -185,11 +185,11 @@ namespace Template.Service.Services
                     }
                 }
 
-                _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(modelUser)}");
+                _logger.LogDebug($"data before AddFromModel: {JsonSerializer.Serialize(modelUser)}");
 
-                result = UserDTO.CreateFromModel(modelUser);
+                result = UserDTO.AddFromModel(modelUser);
 
-                _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(result)}");
+                _logger.LogDebug($"data after AddFromModel: {JsonSerializer.Serialize(result)}");
             }
             catch (ErrorException)
             {
@@ -435,11 +435,11 @@ namespace Template.Service.Services
 
                     message.AddToModel(modelMessage);
 
-                    _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(modelMessage)}");
+                    _logger.LogDebug($"data before AddFromModel: {JsonSerializer.Serialize(modelMessage)}");
 
-                    var messageNew = MessageDTO.CreateFromModel(modelMessage);
+                    var messageNew = MessageDTO.AddFromModel(modelMessage);
 
-                    _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(messageNew)}");
+                    _logger.LogDebug($"data after AddFromModel: {JsonSerializer.Serialize(messageNew)}");
 
                     string queueName = _rabbitMQData.QueueName ?? "";
 

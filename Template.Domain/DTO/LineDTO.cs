@@ -8,6 +8,12 @@ namespace Template.Domain.DTO
         public string? to { get; set; }
         public List<MessagesData>? messages { get; set; }
     }
+    public class LineResponse
+    {
+        public string? message { get; set; }
+        public List<SentMessages>? sentMessages { get; set; }
+    }
+
 
     public class MessagesData
     {

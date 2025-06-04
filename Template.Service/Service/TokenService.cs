@@ -373,11 +373,11 @@ namespace Template.Service.Services
                     throw new ErrorException();
                 }
 
-                _logger.LogDebug($"data before createFromModel: {JsonSerializer.Serialize(modelToken)}");
+                _logger.LogDebug($"data before AddFromModel: {JsonSerializer.Serialize(modelToken)}");
 
-                result = LoginDTO.CreateFromModel(modelToken);
+                result = LoginDTO.AddFromModel(modelToken);
 
-                _logger.LogDebug($"data after createFromModel: {JsonSerializer.Serialize(result)}");
+                _logger.LogDebug($"data after AddFromModel: {JsonSerializer.Serialize(result)}");
             }
             catch (ErrorException)
             {

@@ -37,6 +37,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Email.html">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Message.html">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

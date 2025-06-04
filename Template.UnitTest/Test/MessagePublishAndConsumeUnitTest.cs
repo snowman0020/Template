@@ -36,7 +36,7 @@ namespace Template.UnitTest.Test
 
             Assert.NotNull(modelMessage);
 
-            var messageNew = MessageDTO.CreateFromModel(modelMessage);
+            var messageNew = MessageDTO.AddFromModel(modelMessage);
 
             Assert.NotNull(messageNew);
 

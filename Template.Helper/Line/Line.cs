@@ -47,17 +47,38 @@ namespace Template.Helper.Line
 
                 if (response.StatusCode != System.Net.HttpStatusCode.OK)
                 {
+                    var responseReadAsString = await response.Content.ReadAsStringAsync();
+
+                    var responseReadAsStringConvert = JsonSerializer.Deserialize<LineResponse>(responseReadAsString);
+
+                    if (responseReadAsStringConvert != null)
+                    {
+                        result.message = responseReadAsStringConvert.message ?? null;
+                    }
+
                     _logger.LogError($"Error: {response.ReasonPhrase} status: {response.StatusCode}, message: {JsonSerializer.Serialize(response.Content.ReadAsStringAsync())}");
                 }
                 else
                 {
                     isSentSuccess = true;
+              
+                    var responseReadAsString = await response.Content.ReadAsStringAsync();
+
+                    var responseReadAsStringConvert = JsonSerializer.Deserialize<LineResponse>(responseReadAsString);
+
+                    result.sentSuccessDate = DateTime.Now;
+
+                    if (responseReadAsStringConvert != null)
+                    {
+                        result.sentMessages = responseReadAsStringConvert.sentMessages ?? null;
+                    }
 
                     _logger.LogInformation($"Success: {response.ReasonPhrase} status: {response.StatusCode}, message: {JsonSerializer.Serialize(response.Content.ReadAsStringAsync())}");
                 }
 
                 result.isSentSuccess = isSentSuccess;
-                result.sentSuccessDate = DateTime.Now;
+
+                result.message = "";
 
                 _logger.LogDebug($"data sent success: {isSentSuccess}, request: {JsonSerializer.Serialize(input)}");
             }

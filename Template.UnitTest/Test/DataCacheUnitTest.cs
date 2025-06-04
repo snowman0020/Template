@@ -26,6 +26,8 @@ namespace Template.UnitTest.Test
         [Fact]
         public async Task DataCacheFlowTest()
         {
+            Dispose();
+
             string dataId = "7177ea0f-af20-499d-a5fc-c0b0d96501a1";
             string refreshToken = "e84c2159-737a-46cd-8107-b7b1f5b5d760";
 

@@ -5,5 +5,6 @@ namespace Template.Service.IServices
     public interface IMessageService
     {
         Task AddMessageAsync(MessageDTO input);
+        Task CheckMessageAsync();
     }
 }
