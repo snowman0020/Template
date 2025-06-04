@@ -1,5 +1,4 @@
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Graph.Models;
 using Template.Domain.DTO;
 using Template.Helper.Email;
 using Template.Infrastructure;

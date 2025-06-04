@@ -13,7 +13,6 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
 using Template.Service.IServices;
-using static MassTransit.ValidationResultExtensions;
 
 namespace Template.Service.Services
 {
