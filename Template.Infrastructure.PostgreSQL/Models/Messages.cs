@@ -31,5 +31,15 @@ namespace Template.Infrastructure.PostgreSQL.Models
         [MaxLength(300)]
         [Description("Detail.")]
         public string? Detail { get; set; }
+
+        [Description("Sent message yes or not.")]
+        public bool IsSent { get; set; }
+
+        [Description("Sent date.")]
+        public DateTime SentDate { get; set; }
+
+        [MaxLength(200)]
+        [Description("Sent name.")]
+        public string? SentBy { get; set; }
     }
 }

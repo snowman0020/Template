@@ -90,6 +90,10 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .Annotation("MySql:CharSet", "utf8mb4"),
                     Detail = table.Column<string>(type: "varchar(300)", maxLength: 300, nullable: false)
                         .Annotation("MySql:CharSet", "utf8mb4"),
+                    IsSent = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
+                    SentDate = table.Column<DateTime>(type: "datetime(6)", nullable: false),
+                    SentBy = table.Column<string>(type: "varchar(200)", maxLength: 200, nullable: true)
+                        .Annotation("MySql:CharSet", "utf8mb4"),
                     OrderNumber = table.Column<int>(type: "int", nullable: false),
                     IsDeleted = table.Column<bool>(type: "tinyint(1)", nullable: false, defaultValue: false),
                     CreatedDate = table.Column<DateTime>(type: "datetime(6)", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP(6)"),

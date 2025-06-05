@@ -16,6 +16,7 @@ namespace Template.Infrastructure.SQLite
         public DbSet<Users> Users { get; set; }
         public DbSet<Tokens> Tokens { get; set; }
         public DbSet<Messages> Messages { get; set; }
+        public DbSet<MessageLines> MessageLines { get; set; }
 
         /*
           OnModelCreating mainly used to configured our EF model
@@ -51,6 +52,17 @@ namespace Template.Infrastructure.SQLite
             modelBuilder.Entity<Messages>().Property(m => m.CreatedBy).HasDefaultValue("System");
             modelBuilder.Entity<Messages>().Property(m => m.UpdatedDate).HasColumnType("datetime");
             modelBuilder.Entity<Messages>().Property(m => m.DeletedDate).HasColumnType("datetime");
+            modelBuilder.Entity<Messages>().Property(m => m.IsSent).HasDefaultValue(false);
+
+            //Table MessageLines
+            modelBuilder.Entity<MessageLines>().Property(m => m.OrderNumber).ValueGeneratedOnAdd();
+            modelBuilder.Entity<MessageLines>().Property(m => m.OrderNumber).Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
+            modelBuilder.Entity<MessageLines>().Property(m => m.IsDeleted).HasDefaultValue(false);
+            modelBuilder.Entity<MessageLines>().Property(m => m.CreatedDate).HasColumnType("datetime").HasDefaultValueSql("CURRENT_TIMESTAMP");
+            modelBuilder.Entity<MessageLines>().Property(m => m.CreatedBy).HasDefaultValue("System");
+            modelBuilder.Entity<MessageLines>().Property(m => m.UpdatedDate).HasColumnType("datetime");
+            modelBuilder.Entity<MessageLines>().Property(m => m.DeletedDate).HasColumnType("datetime");
+            modelBuilder.Entity<MessageLines>().Property(m => m.IsSentSuccess).HasDefaultValue(false);
 
             //// Inserting record in User table
             //var user = new Users()

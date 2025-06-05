@@ -16,6 +16,7 @@ namespace Template.Infrastructure
         public DbSet<Users> Users { get; set; }
         public DbSet<Tokens> Tokens { get; set; }
         public DbSet<Messages> Messages { get; set; }
+        public DbSet<MessageLines> MessageLines { get; set; }
 
         /*
           OnModelCreating mainly used to configured our EF model
@@ -26,6 +27,7 @@ namespace Template.Infrastructure
             modelBuilder.Entity<Users>().ToCollection("Users");
             modelBuilder.Entity<Tokens>().ToCollection("Tokens");
             modelBuilder.Entity<Messages>().ToCollection("Messages");
+            modelBuilder.Entity<MessageLines>().ToCollection("MessageLines");
 
             base.OnModelCreating(modelBuilder);
         }

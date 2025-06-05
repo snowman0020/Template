@@ -12,7 +12,7 @@ using Template.Infrastructure;
 namespace Template.Infrastructure.MySQL.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20250602183527_AddTableUserAndTokenAndMessage")]
+    [Migration("20250605103843_AddTableUserAndTokenAndMessage")]
     partial class AddTableUserAndTokenAndMessage
     {
         /// <inheritdoc />
@@ -59,8 +59,20 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
+                    b.Property<bool>("IsSent")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
                     b.Property<int>("OrderNumber")
                         .HasColumnType("int");
+
+                    b.Property<string>("SentBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("SentDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Topic")
                         .IsRequired()

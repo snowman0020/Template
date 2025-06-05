@@ -22,6 +22,73 @@ namespace Template.Infrastructure.MySQL.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
+            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
+                {
+                    b.Property<string>("ID")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<string>("CreatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasDefaultValue("System");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsSentSuccess")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MessageError")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("MessageID")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SentMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("SentSuccessDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("MessageID");
+
+                    b.ToTable("MessageLines");
+                });
+
             modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>
                 {
                     b.Property<string>("ID")
@@ -56,11 +123,20 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasDefaultValue(false);
 
-                    b.Property<int>("OrderNumber")
+                    b.Property<bool>("IsSent")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<int>("OrderNumber")
                         .HasColumnType("int");
 
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrderNumber"));
+                    b.Property<string>("SentBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime>("SentDate")
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("Topic")
                         .IsRequired()
@@ -80,9 +156,6 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("varchar(36)");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
 
                     b.HasIndex("UserID");
 
@@ -130,10 +203,7 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasDefaultValue(false);
 
                     b.Property<int>("OrderNumber")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrderNumber"));
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
@@ -148,9 +218,6 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Token");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
 
                     b.ToTable("Tokens");
                 });
@@ -200,10 +267,7 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("varchar(100)");
 
                     b.Property<int>("OrderNumber")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
-
-                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("OrderNumber"));
 
                     b.Property<string>("Password")
                         .IsRequired()
@@ -227,10 +291,18 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
+                {
+                    b.HasOne("Template.Infrastructure.MySQL.Models.Messages", "Messages")
+                        .WithMany()
+                        .HasForeignKey("MessageID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Messages");
                 });
 
             modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>

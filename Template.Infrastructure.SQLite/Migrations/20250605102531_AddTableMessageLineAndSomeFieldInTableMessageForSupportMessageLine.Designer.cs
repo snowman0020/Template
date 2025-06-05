@@ -2,88 +2,84 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Oracle.EntityFrameworkCore.Metadata;
-using Template.Infrastructure;
+using Template.Infrastructure.SQLite;
 
 #nullable disable
 
-namespace Template.Infrastructure.Oracle.Migrations
+namespace Template.Infrastructure.SQLite.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    partial class TemplateDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250605102531_AddTableMessageLineAndSomeFieldInTableMessageForSupportMessageLine")]
+    partial class AddTableMessageLineAndSomeFieldInTableMessageForSupportMessageLine
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.16")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.16");
 
-            OracleModelBuilderExtensions.UseIdentityColumns(modelBuilder);
-
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.MessageLines", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.MessageLines", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
-                        .HasColumnType("NVARCHAR2(36)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("System");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TIMESTAMP(7)")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<bool>("IsSentSuccess")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<string>("MessageError")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("MessageID")
                         .IsRequired()
                         .HasMaxLength(36)
-                        .HasColumnType("NVARCHAR2(36)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("OrderNumber")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderNumber"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SentMessage")
                         .HasMaxLength(1000)
-                        .HasColumnType("NVARCHAR2(1000)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("SentSuccessDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.HasKey("ID");
 
@@ -92,74 +88,72 @@ namespace Template.Infrastructure.Oracle.Migrations
                     b.ToTable("MessageLines");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.Messages", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
-                        .HasColumnType("NVARCHAR2(36)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("System");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TIMESTAMP(7)")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Detail")
                         .IsRequired()
                         .HasMaxLength(300)
-                        .HasColumnType("NVARCHAR2(300)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<bool>("IsSent")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<int>("OrderNumber")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderNumber"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("SentBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("SentDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Topic")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("UserID")
                         .IsRequired()
                         .HasMaxLength(36)
-                        .HasColumnType("NVARCHAR2(36)");
+                        .HasColumnType("TEXT");
 
                     b.HasKey("ID");
 
@@ -168,135 +162,131 @@ namespace Template.Infrastructure.Oracle.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.Tokens", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.Tokens", b =>
                 {
                     b.Property<string>("Token")
                         .HasMaxLength(300)
-                        .HasColumnType("NVARCHAR2(300)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("System");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TIMESTAMP(7)")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime>("ExpiredDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("TEXT");
 
                     b.Property<double>("Expires")
-                        .HasColumnType("BINARY_DOUBLE");
+                        .HasColumnType("REAL");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<int>("OrderNumber")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderNumber"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("RefreshToken")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.HasKey("Token");
 
                     b.ToTable("Tokens");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.Users", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.Users", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
-                        .HasColumnType("NVARCHAR2(36)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CreatedBy")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)")
+                        .HasColumnType("TEXT")
                         .HasDefaultValue("System");
 
                     b.Property<DateTime>("CreatedDate")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("TIMESTAMP(7)")
-                        .HasDefaultValueSql("GETDATE()");
+                        .HasColumnType("datetime")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
                     b.Property<string>("DeletedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("DeletedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(50)
-                        .HasColumnType("NVARCHAR2(50)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("IsDeleted")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("BOOLEAN")
+                        .HasColumnType("INTEGER")
                         .HasDefaultValue(false);
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<int>("OrderNumber")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("NUMBER(10)");
-
-                    OraclePropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("OrderNumber"));
+                        .HasColumnType("INTEGER");
 
                     b.Property<string>("Password")
                         .IsRequired()
                         .HasMaxLength(100)
-                        .HasColumnType("NVARCHAR2(100)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Phone")
                         .IsRequired()
                         .HasMaxLength(20)
-                        .HasColumnType("NVARCHAR2(20)");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("UpdatedBy")
                         .HasMaxLength(200)
-                        .HasColumnType("NVARCHAR2(200)");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("UpdatedDate")
-                        .HasColumnType("TIMESTAMP(7)");
+                        .HasColumnType("datetime");
 
                     b.HasKey("ID");
 
@@ -306,9 +296,9 @@ namespace Template.Infrastructure.Oracle.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.MessageLines", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.MessageLines", b =>
                 {
-                    b.HasOne("Template.Infrastructure.Oracle.Models.Messages", "Messages")
+                    b.HasOne("Template.Infrastructure.SQLite.Models.Messages", "Messages")
                         .WithMany()
                         .HasForeignKey("MessageID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -317,9 +307,9 @@ namespace Template.Infrastructure.Oracle.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.Oracle.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.SQLite.Models.Messages", b =>
                 {
-                    b.HasOne("Template.Infrastructure.Oracle.Models.Users", "Users")
+                    b.HasOne("Template.Infrastructure.SQLite.Models.Users", "Users")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)
