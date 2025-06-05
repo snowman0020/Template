@@ -9,12 +9,9 @@ namespace Template.Infrastructure.MongoDB.Models
     [Collection("Users")]
     public class Users : MainFields
     {
-        public ObjectId _id { get; set; }
-
         [Required]
-        [MaxLength(36)]
         [Description("User id.")]
-        public string? ID { get; set; }
+        public ObjectId? ID { get; set; }
 
         [Required]
         [MaxLength(100)]

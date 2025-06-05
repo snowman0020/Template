@@ -9,17 +9,13 @@ namespace Template.Infrastructure.MongoDB.Models
     [Collection("Messages")]
     public class Messages : MainFields
     {
-        public ObjectId _id { get; set; }
-
         [Required]
-        [MaxLength(36)]
         [Description("Message id.")]
-        public string? ID { get; set; }
+        public ObjectId ID { get; set; }
 
         [Required]
-        [MaxLength(36)]
         [Description("User id (FK).")]
-        public string? UserID { get; set; }
+        public ObjectId? UserID { get; set; }
 
         [Required]
         [MaxLength(100)]

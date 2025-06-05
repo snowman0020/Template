@@ -6,9 +6,6 @@ namespace Template.Infrastructure.MongoDB.Share
     public class MainFields
     {
 
-        [Description("Record No.")]
-        public int OrderNumber { get; set; }
-
         [Description("Delete yes or not.")]
         public bool IsDeleted { get; set; }
 

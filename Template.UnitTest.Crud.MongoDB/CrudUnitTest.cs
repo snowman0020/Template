@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using MongoDB.Bson;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure.MongoDB;
 using Template.Infrastructure.MongoDB.Models;
@@ -15,19 +16,15 @@ namespace Template.UnitTest.Test
             _db = db;
             _passwordHash = passwordHash;
         }
-
         public void Dispose()
         {
             _db.Database.EnsureDeleted();
-            _db.Database.Migrate();
         }
 
         [Fact]
         public async Task CrudFlowTest()
         {
-            Dispose();
-
-            string userId = new Guid().ToString();
+            ObjectId userId = ObjectId.GenerateNewId();
 
             string passwordOld = "12345";
             string passwordNew = "123456";
@@ -47,7 +44,7 @@ namespace Template.UnitTest.Test
                 LastName = lastNameOld,
                 Phone = phoneOld,
                 Email = emailOld,
-                CreatedBy = createdByOld,
+                CreatedBy = userId.ToString(),
                 CreatedDate = createdDateOld
             };
 
@@ -57,15 +54,11 @@ namespace Template.UnitTest.Test
 
             Assert.True(inputAdd.Password.Length > 6);
 
-            Assert.Equal(userId, inputAdd.CreatedBy);
+            Assert.Equal(userId.ToString(), inputAdd.CreatedBy);
 
             bool isAddSuccess = false;
             try
             {
-                var orderNumber = await _db.Users.MaxAsync(u => (int?)u.OrderNumber) ?? 0;
-
-                inputAdd.OrderNumber = orderNumber + 1;
-
                 await _db.Users.AddAsync(inputAdd);
                 await _db.SaveChangesAsync();
 
@@ -73,6 +66,7 @@ namespace Template.UnitTest.Test
             }
             catch
             {
+
             }
             finally
             {
@@ -87,7 +81,7 @@ namespace Template.UnitTest.Test
             resultAdd.LastName = "Unit Test Lastname12";
             resultAdd.Phone = "0111111112";
             resultAdd.Email = "unit_test12@email.com";
-            resultAdd.UpdatedBy = userId;
+            resultAdd.UpdatedBy = userId.ToString();
             resultAdd.UpdatedDate = DateTime.Now;
 
             Assert.NotNull(resultAdd);
@@ -96,7 +90,7 @@ namespace Template.UnitTest.Test
 
             Assert.NotEqual(passwordEncryptOld, resultAdd.Password);
 
-            Assert.Equal(resultAdd.ID, resultAdd.UpdatedBy);
+            Assert.Equal(resultAdd.ID.ToString(), resultAdd.UpdatedBy);
 
             bool isUpdateSuccess = false;
             try
@@ -123,7 +117,7 @@ namespace Template.UnitTest.Test
             Assert.NotEqual(resultUpdate.Email, emailOld);
 
             resultUpdate.IsDeleted = true;
-            resultUpdate.DeletedBy = userId;
+            resultUpdate.DeletedBy = userId.ToString();
             resultUpdate.DeletedDate = DateTime.Now;
 
             bool isDeleteSuccess = false;
@@ -146,6 +140,8 @@ namespace Template.UnitTest.Test
 
             Assert.NotNull(resultDelete);
             Assert.True(resultDelete.IsDeleted);
+
+            Dispose();
         }
     }
 }

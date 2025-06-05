@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.EntityFrameworkCore.Extensions;
 using Template.Infrastructure.MongoDB.Models;
 
@@ -28,6 +31,9 @@ namespace Template.Infrastructure.MongoDB
             modelBuilder.Entity<Tokens>().ToCollection("Tokens");
             modelBuilder.Entity<Messages>().ToCollection("Messages");
             modelBuilder.Entity<MessageLines>().ToCollection("MessageLines");
+
+
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
 
             base.OnModelCreating(modelBuilder);
         }

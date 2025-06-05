@@ -9,17 +9,13 @@ namespace Template.Infrastructure.MongoDB.Models
     [Collection("MessageLines")]
     public class MessageLines : MainFields
     {
-        public ObjectId _id { get; set; }
-
         [Required]
-        [MaxLength(36)]
         [Description("Message line id.")]
-        public string? ID { get; set; }
+        public ObjectId ID { get; set; }
 
         [Required]
-        [MaxLength(36)]
         [Description("Message id (FK).")]
-        public string? MessageID { get; set; }
+        public ObjectId MessageID { get; set; }
 
         [Description("Sent message success yes or not.")]
         public bool IsSentSuccess { get; set; }

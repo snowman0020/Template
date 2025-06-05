@@ -9,7 +9,9 @@ namespace Template.Infrastructure.MongoDB.Models
     [Collection("Tokens")]
     public class Tokens : MainFields
     {
-        public ObjectId _id { get; set; }
+        [Required]
+        [Description("Token id.")]
+        public ObjectId ID { get; set; }
 
         [Required]
         [MaxLength(300)]
