@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
 using Template.Infrastructure.MySQL.Models;
 
-namespace Template.Infrastructure
+namespace Template.Infrastructure.MySQL
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure;
+using Template.Infrastructure.Oracle;
 
 string fileName = $"appsettings.json";
 

@@ -4,7 +4,7 @@ using Microsoft.Extensions.Configuration;
 using MongoDB.EntityFrameworkCore.Extensions;
 using Template.Infrastructure.MongoDB.Models;
 
-namespace Template.Infrastructure
+namespace Template.Infrastructure.MongoDB
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {

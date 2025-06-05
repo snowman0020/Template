@@ -57,7 +57,7 @@ namespace Template.UnitTest
             var dataProtectionPath = Path.Combine(baseDirectory, "dataProtectedInformation");
             services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo(dataProtectionPath)).SetApplicationName("Template").SetDefaultKeyLifetime(TimeSpan.FromDays(90));
 
-            //Add DbContext
+            ////Add DbContext
             services.AddDbContext<TemplateDbContext>(options =>
             {
                 var customSettingData = services.BuildServiceProvider().GetRequiredService<IOptions<CustomSettingData>>().Value;

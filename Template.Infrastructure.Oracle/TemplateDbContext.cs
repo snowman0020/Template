@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.Extensions.Configuration;
 using Template.Infrastructure.Oracle.Models;
 
-namespace Template.Infrastructure
+namespace Template.Infrastructure.Oracle
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {
