@@ -2,9 +2,8 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Template.Infrastructure;
+using Template.Infrastructure.MySQL;
 
 #nullable disable
 
@@ -19,8 +18,6 @@ namespace Template.Infrastructure.MySQL.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
                 {

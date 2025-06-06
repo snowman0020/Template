@@ -8,7 +8,7 @@ using Template.Domain.AppSetting;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure.MongoDB;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Crud.MongoDB
 {
     public class Startup
     {

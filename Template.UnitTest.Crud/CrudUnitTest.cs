@@ -2,9 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure;
 using Template.Infrastructure.Models;
-using Template.UnitTest.Crud;
 
-namespace Template.UnitTest.Test.Crud
+namespace Template.UnitTest.Crud
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {

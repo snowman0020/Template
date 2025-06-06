@@ -3,7 +3,7 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure.PostgreSQL;
 using Template.Infrastructure.PostgreSQL.Models;
 
-namespace Template.UnitTest.Test
+namespace Template.UnitTest.Crud.PostgreSQL
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {

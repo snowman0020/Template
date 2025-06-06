@@ -3,7 +3,7 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure.SQLite;
 using Template.Infrastructure.SQLite.Models;
 
-namespace Template.UnitTest.Test
+namespace Template.UnitTest.Crud.SQLite
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {

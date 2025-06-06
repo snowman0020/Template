@@ -1,9 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using Template.Helper.PasswordHash;
-using Template.Infrastructure.Oracle;
-using Template.Infrastructure.Oracle.Models;
+using Template.Infrastructure.MariaDB;
+using Template.Infrastructure.MariaDB.Models;
 
-namespace Template.UnitTest.Crud.Oracle
+namespace Template.UnitTest.Crud.MariaDB
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.MySQL;
+using Template.Infrastructure.MariaDB;
 
 string fileName = $"appsettings.json";
 
@@ -10,7 +10,8 @@ var connectionString = configuration["ConnectionServer"] ?? "";
 
 var builder = new DbContextOptionsBuilder<TemplateDbContext>();
 
-builder.UseMySQL(connectionString);
+var serverVersion = ServerVersion.AutoDetect(connectionString);
+builder.UseMySql(connectionString, serverVersion);
 
 var db = new TemplateDbContext(builder.Options);
 

@@ -2,18 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Template.Infrastructure;
+using Template.Infrastructure.MySQL;
 
 #nullable disable
 
 namespace Template.Infrastructure.MySQL.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20250605103914_AddTableMessageLineAndSomeFieldInTableMessageForSupportMessageLine")]
-    partial class AddTableMessageLineAndSomeFieldInTableMessageForSupportMessageLine
+    [Migration("20250606044039_AddTableUserAndTokenAndMessageAndMessageLine")]
+    partial class AddTableUserAndTokenAndMessageAndMessageLine
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -22,8 +21,6 @@ namespace Template.Infrastructure.MySQL.Migrations
             modelBuilder
                 .HasAnnotation("ProductVersion", "8.0.16")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
             modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
                 {
@@ -88,9 +85,6 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("MessageID");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
 
                     b.ToTable("MessageLines");
                 });
@@ -163,9 +157,6 @@ namespace Template.Infrastructure.MySQL.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
                     b.HasIndex("UserID");
 
                     b.ToTable("Messages");
@@ -227,9 +218,6 @@ namespace Template.Infrastructure.MySQL.Migrations
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Token");
-
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
 
                     b.ToTable("Tokens");
                 });
@@ -301,9 +289,6 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.HasKey("ID");
 
                     b.HasIndex("Email")
-                        .IsUnique();
-
-                    b.HasIndex("OrderNumber")
                         .IsUnique();
 
                     b.ToTable("Users");

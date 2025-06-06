@@ -1,9 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Microsoft.Extensions.Configuration;
-using Template.Infrastructure.MySQL.Models;
+using Template.Infrastructure.MariaDB.Models;
 
-namespace Template.Infrastructure.MySQL
+namespace Template.Infrastructure.MariaDB
 {
     public class TemplateDbContext : DbContext, IDesignTimeDbContextFactory<TemplateDbContext>
     {
@@ -86,7 +86,8 @@ namespace Template.Infrastructure.MySQL
 
             var builder = new DbContextOptionsBuilder<TemplateDbContext>();
 
-            builder.UseMySQL(connectionString);
+            var serverVersion = ServerVersion.AutoDetect(connectionString);
+            builder.UseMySql(connectionString, serverVersion);
 
             return new TemplateDbContext(builder.Options);
         }

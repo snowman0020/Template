@@ -8,7 +8,7 @@ using Template.Domain.AppSetting;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure.Oracle;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Crud.Oracle
 {
     public class Startup
     {

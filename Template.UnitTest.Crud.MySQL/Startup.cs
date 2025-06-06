@@ -8,7 +8,7 @@ using Template.Domain.AppSetting;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure.MySQL;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Crud.MySQL
 {
     public class Startup
     {
@@ -36,9 +36,8 @@ namespace Template.UnitTest
                 if (customSettingData != null)
                 {
                     var connectionMySQLServer = customSettingData.ConnectionMySQLServer ?? "";
-                    var serverVersion = ServerVersion.AutoDetect(connectionMySQLServer);
 
-                    options.UseMySql(connectionMySQLServer, serverVersion, s =>
+                    options.UseMySQL(connectionMySQLServer, s =>
                     {
                         s.MigrationsAssembly("Template.Infrastructure.MySQL");
                     });

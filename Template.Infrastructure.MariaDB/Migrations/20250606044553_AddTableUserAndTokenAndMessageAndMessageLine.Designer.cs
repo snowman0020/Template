@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Template.Infrastructure;
+using Template.Infrastructure.MariaDB;
 
 #nullable disable
 
-namespace Template.Infrastructure.MySQL.Migrations
+namespace Template.Infrastructure.MariaDB.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20250605103843_AddTableUserAndTokenAndMessage")]
-    partial class AddTableUserAndTokenAndMessage
+    [Migration("20250606044553_AddTableUserAndTokenAndMessageAndMessageLine")]
+    partial class AddTableUserAndTokenAndMessageAndMessageLine
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,74 @@ namespace Template.Infrastructure.MySQL.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.MessageLines", b =>
+                {
+                    b.Property<string>("ID")
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<string>("CreatedBy")
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasDefaultValue("System");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime(6)")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP(6)");
+
+                    b.Property<string>("DeletedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("DeletedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<bool>("IsDeleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<bool>("IsSentSuccess")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(false);
+
+                    b.Property<string>("MessageError")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<string>("MessageID")
+                        .IsRequired()
+                        .HasMaxLength(36)
+                        .HasColumnType("varchar(36)");
+
+                    b.Property<int>("OrderNumber")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SentMessage")
+                        .HasMaxLength(1000)
+                        .HasColumnType("varchar(1000)");
+
+                    b.Property<DateTime>("SentSuccessDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("ID");
+
+                    b.HasIndex("MessageID");
+
+                    b.ToTable("MessageLines");
+                });
+
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Messages", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
@@ -93,15 +160,12 @@ namespace Template.Infrastructure.MySQL.Migrations
 
                     b.HasKey("ID");
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
                     b.HasIndex("UserID");
 
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Tokens", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Tokens", b =>
                 {
                     b.Property<string>("Token")
                         .HasMaxLength(300)
@@ -158,13 +222,10 @@ namespace Template.Infrastructure.MySQL.Migrations
 
                     b.HasKey("Token");
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
                     b.ToTable("Tokens");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Users", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Users", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
@@ -233,15 +294,23 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("OrderNumber")
-                        .IsUnique();
-
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.MessageLines", b =>
                 {
-                    b.HasOne("Template.Infrastructure.MySQL.Models.Users", "Users")
+                    b.HasOne("Template.Infrastructure.MariaDB.Models.Messages", "Messages")
+                        .WithMany()
+                        .HasForeignKey("MessageID")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Messages");
+                });
+
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Messages", b =>
+                {
+                    b.HasOne("Template.Infrastructure.MariaDB.Models.Users", "Users")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)

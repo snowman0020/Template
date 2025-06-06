@@ -8,7 +8,7 @@ using Template.Domain.AppSetting;
 using Template.Helper.PasswordHash;
 using Template.Infrastructure.PostgreSQL;
 
-namespace Template.UnitTest
+namespace Template.UnitTest.Crud.PostgreSQL
 {
     public class Startup
     {

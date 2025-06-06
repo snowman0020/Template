@@ -3,20 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Template.Infrastructure;
+using Template.Infrastructure.MariaDB;
 
 #nullable disable
 
-namespace Template.Infrastructure.MySQL.Migrations
+namespace Template.Infrastructure.MariaDB.Migrations
 {
     [DbContext(typeof(TemplateDbContext))]
-    [Migration("20250605104237_RemoveOrderNumberIndex")]
-    partial class RemoveOrderNumberIndex
+    partial class TemplateDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -25,7 +22,7 @@ namespace Template.Infrastructure.MySQL.Migrations
 
             MySqlModelBuilderExtensions.AutoIncrementColumns(modelBuilder);
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.MessageLines", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
@@ -92,7 +89,7 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.ToTable("MessageLines");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Messages", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
@@ -165,7 +162,7 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.ToTable("Messages");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Tokens", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Tokens", b =>
                 {
                     b.Property<string>("Token")
                         .HasMaxLength(300)
@@ -225,7 +222,7 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.ToTable("Tokens");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Users", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Users", b =>
                 {
                     b.Property<string>("ID")
                         .HasMaxLength(36)
@@ -297,9 +294,9 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.MessageLines", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.MessageLines", b =>
                 {
-                    b.HasOne("Template.Infrastructure.MySQL.Models.Messages", "Messages")
+                    b.HasOne("Template.Infrastructure.MariaDB.Models.Messages", "Messages")
                         .WithMany()
                         .HasForeignKey("MessageID")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -308,9 +305,9 @@ namespace Template.Infrastructure.MySQL.Migrations
                     b.Navigation("Messages");
                 });
 
-            modelBuilder.Entity("Template.Infrastructure.MySQL.Models.Messages", b =>
+            modelBuilder.Entity("Template.Infrastructure.MariaDB.Models.Messages", b =>
                 {
-                    b.HasOne("Template.Infrastructure.MySQL.Models.Users", "Users")
+                    b.HasOne("Template.Infrastructure.MariaDB.Models.Users", "Users")
                         .WithMany()
                         .HasForeignKey("UserID")
                         .OnDelete(DeleteBehavior.Cascade)

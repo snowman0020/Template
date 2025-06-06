@@ -3,7 +3,7 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure.MySQL;
 using Template.Infrastructure.MySQL.Models;
 
-namespace Template.UnitTest.Test
+namespace Template.UnitTest.Crud.MySQL
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {

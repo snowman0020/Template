@@ -4,7 +4,7 @@ using Template.Helper.PasswordHash;
 using Template.Infrastructure.MongoDB;
 using Template.Infrastructure.MongoDB.Models;
 
-namespace Template.UnitTest.Test
+namespace Template.UnitTest.Crud.MongoDB
 {
     public class CrudUnitTest : IClassFixture<Startup>, IDisposable
     {
