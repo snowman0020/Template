@@ -11,8 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Template.Service", "Templat
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Helper", "Template.Helper\Template.Helper.csproj", "{F0B015BD-8A2C-4B49-A8E6-AA198726A7D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest", "Template.UnitTest\Template.UnitTest.csproj", "{3C271587-CA75-4F25-BA90-014A23BF809A}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.SQLite", "Template.Infrastructure.SQLite\Template.Infrastructure.SQLite.csproj", "{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.Oracle", "Template.Infrastructure.Oracle\Template.Infrastructure.Oracle.csproj", "{2A6C2EC4-604C-474E-875E-69BE6E9B2A43}"
@@ -31,8 +29,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud.Post
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud.SQLite", "Template.UnitTest.Crud.SQLite\Template.UnitTest.Crud.SQLite.csproj", "{1453CF22-B578-764C-43D3-9130605C52D9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud", "Template.UnitTest.Crud\Template.UnitTest.Crud.csproj", "{3C58F6B0-5281-4A73-8491-14AAECE51987}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud.MySQL", "Template.UnitTest.Crud.MySQL\Template.UnitTest.Crud.MySQL.csproj", "{467FD44A-4787-47A3-BA6A-B514B0ECD082}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template", "Template\Template.csproj", "{A4F6432E-650D-227A-08A0-8733AEB4B29B}"
@@ -40,6 +36,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.Infrastructure.MariaDB", "Template.Infrastructure.MariaDB\Template.Infrastructure.MariaDB.csproj", "{ED54B442-F17A-476E-B87F-3D9B3CD0AC62}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud.MariaDB", "Template.UnitTest.Crud.MariaDB\Template.UnitTest.Crud.MariaDB.csproj", "{8C496B80-F451-4AF6-852F-B4AD542ECBBA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest", "Template.UnitTest\Template.UnitTest.csproj", "{20BFAF9F-D3BB-D725-9E31-D9DFF05433C8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Template.UnitTest.Crud", "Template.UnitTest.Crud\Template.UnitTest.Crud.csproj", "{DA2C9A1E-3A10-4821-DCBE-E5FD78A12EC6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,10 +63,6 @@ Global
 		{F0B015BD-8A2C-4B49-A8E6-AA198726A7D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F0B015BD-8A2C-4B49-A8E6-AA198726A7D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F0B015BD-8A2C-4B49-A8E6-AA198726A7D4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C271587-CA75-4F25-BA90-014A23BF809A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C271587-CA75-4F25-BA90-014A23BF809A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C271587-CA75-4F25-BA90-014A23BF809A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C271587-CA75-4F25-BA90-014A23BF809A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B5D2CA14-4BDF-4090-9E2D-46E2A75FA616}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -103,10 +99,6 @@ Global
 		{1453CF22-B578-764C-43D3-9130605C52D9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1453CF22-B578-764C-43D3-9130605C52D9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1453CF22-B578-764C-43D3-9130605C52D9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3C58F6B0-5281-4A73-8491-14AAECE51987}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3C58F6B0-5281-4A73-8491-14AAECE51987}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3C58F6B0-5281-4A73-8491-14AAECE51987}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3C58F6B0-5281-4A73-8491-14AAECE51987}.Release|Any CPU.Build.0 = Release|Any CPU
 		{467FD44A-4787-47A3-BA6A-B514B0ECD082}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{467FD44A-4787-47A3-BA6A-B514B0ECD082}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{467FD44A-4787-47A3-BA6A-B514B0ECD082}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -123,6 +115,14 @@ Global
 		{8C496B80-F451-4AF6-852F-B4AD542ECBBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C496B80-F451-4AF6-852F-B4AD542ECBBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C496B80-F451-4AF6-852F-B4AD542ECBBA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{20BFAF9F-D3BB-D725-9E31-D9DFF05433C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{20BFAF9F-D3BB-D725-9E31-D9DFF05433C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{20BFAF9F-D3BB-D725-9E31-D9DFF05433C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{20BFAF9F-D3BB-D725-9E31-D9DFF05433C8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA2C9A1E-3A10-4821-DCBE-E5FD78A12EC6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA2C9A1E-3A10-4821-DCBE-E5FD78A12EC6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA2C9A1E-3A10-4821-DCBE-E5FD78A12EC6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA2C9A1E-3A10-4821-DCBE-E5FD78A12EC6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
