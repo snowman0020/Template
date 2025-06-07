@@ -1,3 +1,6 @@
+using Hangfire;
+using Hangfire.Dashboard.BasicAuthorization;
+using Hangfire.Storage.SQLite;
 using MassTransit;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.DataProtection;
@@ -43,7 +46,7 @@ builder.Services.Configure<RedisData>(builder.Configuration.GetSection("Redis"))
 builder.Services.Configure<SerilogData>(builder.Configuration.GetSection("Serilog"));
 
 //Add Service
-//builder.Services.AddScoped<IBackgroundWorkJob, BackgroundWorkJob>();
+builder.Services.AddScoped<BackgroundJobService>();
 builder.Services.AddScoped<IDataCache, DataCache>();
 builder.Services.AddScoped<IDataProtected, DataProtected>();
 builder.Services.AddScoped<IEmail, Email>();
@@ -215,39 +218,42 @@ builder.Services.AddSwaggerGen(options =>
     options.OperationFilter<OperationFilter>();
 });
 
-////Add Hangfire
-//string hangfireUsername = "";
-//string hangfirePassword = "";
-//string hangfireDashboardPath = "";
+//Add Hangfire
+string hangfireUsername = "";
+string hangfirePassword = "";
+string hangfireDashboardPath = "";
 
-//string prefixName = "";
-//string redisConnectionString = "";
+string prefixName = "";
+string sqlLiteConnectionServer = "";
+string dashBoardPath = "";
 
-//var hangfireData = builder.Configuration.GetSection("Hangfire").Get<HangfireData>();
+var hangfireData = builder.Configuration.GetSection("Hangfire").Get<HangfireData>();
 
-//if (hangfireData != null)
-//{
-//    hangfireUsername = hangfireData.Username ?? "";
-//    hangfirePassword = hangfireData.Password ?? "";
-//    hangfireDashboardPath = hangfireData.DashboardPath ?? "";
+if (hangfireData != null)
+{
+    hangfireUsername = hangfireData.Username ?? "";
+    hangfirePassword = hangfireData.Password ?? "";
+    hangfireDashboardPath = hangfireData.DashboardPath ?? "";
 
-//    prefixName = hangfireData.PrefixName ?? "";
-//    redisConnectionString = hangfireData.RedisConnectionString ?? "";
-//}
-//else
-//{
-//    throw new BadHttpRequestException("Hangfire Setting Error.");
-//}
+    prefixName = hangfireData.PrefixName ?? "";
+    sqlLiteConnectionServer = hangfireData.SQLiteConnectionServer ?? "";
+    dashBoardPath = hangfireData.DashboardPath ?? "";
+}
+else
+{
+    throw new BadHttpRequestException("Hangfire Setting Error.");
+}
 
-//var redis = ConnectionMultiplexer.Connect(redisConnectionString);
+builder.Services.AddHangfire(config =>
+{
+    config.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+    config.UseSimpleAssemblyNameTypeSerializer();
+    config.UseRecommendedSerializerSettings();
+    config.UseColouredConsoleLogProvider();
+    config.UseSQLiteStorage(sqlLiteConnectionServer);
+});
 
-//builder.Services.AddHangfire(config =>
-//{
-//    config.UseRedisStorage(redis);
-//});
-
-//builder.Services.AddHangfireServer();
-////builder.Services.AddHostedService<TestService>;
+builder.Services.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -267,29 +273,38 @@ app.MapControllers();
 ////Add support to logging request with SERILOG
 //app.UseSerilogRequestLogging();
 
+//Use Hangfire
+var options = new DashboardOptions
+{
+    Authorization = new[] { new BasicAuthAuthorizationFilter( 
+                            new BasicAuthAuthorizationFilterOptions 
+                            { 
+                                SslRedirect = false, RequireSsl = false, LoginCaseSensitive = true, Users = new []
+                                   {
+                                        new BasicAuthAuthorizationUser()
+                                        {
+                                            Login = hangfireUsername,
+                                            PasswordClear = hangfirePassword
+                                        }
+                                   }
+                            })
+                         }
+};
+
+app.UseHangfireDashboard(dashBoardPath, options);
+
+//Use Hangfire
+using (var serviceScope = app.Services.CreateScope())
+{
+    var services = serviceScope.ServiceProvider;
+
+    var messageService = services.GetRequiredService<IMessageService>();
+
+    var messageServiceCheckMessageAsync = typeof(MessageService).GetMethod(nameof(messageService.CheckMessageAsync));
+    string messageServiceCheckMessageAsyncName = messageServiceCheckMessageAsync!.Name;
+
+    RecurringJob.RemoveIfExists(messageServiceCheckMessageAsyncName);
+    RecurringJob.AddOrUpdate(messageServiceCheckMessageAsyncName, () => messageService.CheckMessageAsync(), Cron.Minutely);
+}
+
 app.Run();
-
-
-
-////Use Hangfire
-//var options = new DashboardOptions
-//{
-//    Authorization = new[] { new BasicAuthAuthorizationFilter(
-//                           new BasicAuthAuthorizationFilterOptions
-//                            {
-//                               SslRedirect = false,
-//                               RequireSsl = false,
-//                               LoginCaseSensitive = true,
-//                               Users = new []
-//                               {
-//                                    new BasicAuthAuthorizationUser()
-//                                    {
-//                                        Login = hangfireUsername,
-//                                        PasswordClear = hangfirePassword
-//                                    }
-//                               }
-//                            })
-//                         }
-//};
-
-//app.UseHangfireDashboard("/hangfire");

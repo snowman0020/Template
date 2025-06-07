@@ -6,6 +6,6 @@
         public string? Password { get; set; }
         public string? PrefixName { get; set; }
         public string? DashboardPath { get; set; }
-        public string? RedisConnectionServer { get; set; }
+        public string? SQLiteConnectionServer { get; set; }
     }
 }
