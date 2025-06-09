@@ -89,5 +89,32 @@ This project use
 
 22. Background processing  using Hangfire (SQLite database)
 -----------------------------------------------------------------------------------
+Note:
 
+Protect sensitive information
+
+This is not used. It is in Helper=> DataProtected Folder to protect important information. If this section is enabled (actually, the Template is enabled but not called)
+
+The system will generate key-.xml in dataProtectedInformation Folder. Keep it safe because this file is required to encrypt or decrypt messages.
+
+-----------------------------------------------------------------------------------
+MessageQueue using RabbitMQ (Masstransit)
+
+Helper=> MessagePublish Folder and MessageConsume Folder
+
+(You can set it up for use between projects. For example, if there are 2 Web Api, change QueueName and add QueueName in Program.cs to AddConsumer and ConfigureConsumer)
+
+This section will be included in UserService=> DeleteUserAsync When someone uses this function, the message will be published and the message value will be consumed. Then, the Api will be pinged with Http Client (PostAsync) MessageService to insert data to the Message Table.
+
+-----------------------------------------------------------------------------------
+Caching with Redis with Microsoft StackExchangeRedis
+
+Helper=> DataCache Folder, this section will be used when LoginAsync.
+
+If LoginAsync is called, the system will first check if there is a value of the person who logged in to the Cache. If there is or it is not expired, the token will be thrown to send the original value. But if not, the system will save the key token.
+
+-----------------------------------------------------------------------------------
+Hangfire is used to check if there are any messages that have not been sent to the Line message.
+
+----------------------------------------------------------------------------------
 Thank you very much, Enjoy code!
