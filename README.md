@@ -34,12 +34,15 @@ The structure of the Web Api Template Project is as follows
 
 17. Template.Infrastructure.SQLite => Unit Test crud part is SQLite
 
+-----------------------------------------------------------------------------------
 1. Create Database On SQL Server Name=> TemplateDB 
 2. Goto=> Template.Infrastructure (Set main project before)
 3. Then type dotnet run=> enter
+-----------------------------------------------------------------------------------
 
 (Have many database can switch for use database interest and change som code for suport it)
 
+-----------------------------------------------------------------------------------
 This project use
 
 1. Web Api
@@ -85,5 +88,6 @@ This project use
 21. Example crud data for support many database (SQLServer, MariaDBServer, MySQLServer, OracleServer, SQLiteServer, PostgreSQLServer, MongoDBServer) (Unit test) 
 
 22. Background processing  using Hangfire (SQLite database)
+-----------------------------------------------------------------------------------
 
 Thank you very much, Enjoy code!
